@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Мои классы {% endblock %}
+
+{% block content %}
+    <div class="content margintop100">
+    <div class="classlist">
+        <div class="classlist_title">
+            <div class="eco highlight">Мои классы </div>
+            <a href="{% url 'add_class' %}" class="nodec material-symbols-rounded plus">add</a>
+        </div>
+        {% for class in classes %}
+        <div class="class">
+            <div class="class_title">
+                {{ class.number }} "{{ class.letter }}" класс
+            </div>
+            <div class="class_actions">
+                <a href="{% url 'class_detail' class.pk %}" class="nodec class_open">Открыть</a>
+                <div class="class_delete">Удалить</div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    </div>
+{% endblock %}

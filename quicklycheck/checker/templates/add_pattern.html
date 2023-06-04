@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Новый вариант {% endblock %}
+{% block content %}
+
+    <div class="content margintop100" style="display: flex; justify-content: space-around;">
+    <div class="form">
+
+        {% if form.errors %}
+            <p>Ошибка</p>
+        {% endif %}
+
+    <div class="login-card">
+            <div class="login-card-header">
+                <h1>Новый вариант</h1>
+            </div>
+            <form class="login-card-form" method="post" action="{% url 'add_pattern' test_pk=test_pk %}">
+                {% csrf_token %}
+                <div class="form-item">
+                    <span class="form-item-icon material-symbols-rounded">123</span>
+                    <input type="number" name="num" autofocus  required id="id_num" placeholder="Введите номер варианта">
+                </div>
+                <div class="form-item">
+                    <span class="form-item-icon material-symbols-rounded">description</span>
+                    <input type="text" name="pattern" autofocus maxlength="500" required id="id_pattern" placeholder="Введите ответы через запятую">
+                </div>
+                <button type="submit">Добавить</button>
+            </form>
+        </div>
+    </div>
+
+    </div>
+{% endblock %}

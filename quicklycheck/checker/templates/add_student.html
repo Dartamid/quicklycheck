@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Добавление студента {% endblock %}
+
+{% block content %}
+
+    <div class="content margintop100" style="display: flex; justify-content: space-around;">
+    <div class="form">
+
+        {% if form.errors %}
+            <p>Ошибка.</p>
+        {% endif %}
+
+
+        <div class="login-card">
+            <div class="login-card-header">
+                    <h1>Добавление студента</h1>
+            </div>
+
+            <form class="login-card-form" method="post" action="{% url 'add_student' class_pk=class_pk %}">
+                {% csrf_token %}
+                    <div class="form-item">
+                        <input type="text" name="name" autofocus maxlength="254" required id="id_name" placeholder="Введите имя ученика">
+                    </div>
+                    <button type="submit">Добавить</button>
+            </form>
+        </div>
+    </div>
+    </div>
+{% endblock %}

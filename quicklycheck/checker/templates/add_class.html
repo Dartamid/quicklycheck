@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Логин {% endblock %}
+
+{% block content %}
+
+    <div class="content margintop100" style="display: flex; justify-content: space-around;">
+    <div class="form">
+
+        {% if form.errors %}
+            <p>Ошибка.</p>
+        {% endif %}
+
+
+        <div class="login-card">
+            <div class="login-card-header">
+                    <h1>Добавление класса</h1>
+            </div>
+
+            <form class="login-card-form" method="post" action="{% url 'add_class' %}">
+                {% csrf_token %}
+                    <div class="form-item">
+                        <span class="form-item-icon material-symbols-rounded">123</span>
+                        <input type="text" name="number" autofocus maxlength="2" required id="id_number" placeholder="Введите цифру класса">
+                    </div>
+                    <div class="form-item">
+                        <span class="form-item-icon material-symbols-rounded">abc</span>
+                        <input type="text" name="letter" required id="id_letter" maxlength="2" placeholder="Введите букву класса">
+                    </div>
+                    <button type="submit">Добавить</button>
+            </form>
+        </div>
+    </div>
+    </div>
+{% endblock %}
