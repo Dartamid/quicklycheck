@@ -205,6 +205,7 @@ def blank_detail(request, blank_pk):
         'result': result,
         'count': len(pattern),
         'score': count,
+        'proc': int(count / len(pattern) * 100)
     }
     return render(
         request,
@@ -212,3 +213,11 @@ def blank_detail(request, blank_pk):
         context
     )
 
+
+def delete_class(request, class_pk):
+    Class.objects.filter(pk=class_pk).delete()
+    return redirect('myclasses')
+
+
+def download(request):
+    return render(request, 'download.html')

@@ -12,7 +12,7 @@
                 <a href="{% url 'add_student' class.pk %}" class="nodec material-symbols-rounded small_plus">add</a>
             </div>
             {% for student in class.students.all %}
-                <p><a href="/" class="nodec student">{{ forloop.counter }}. {{ student.name }}</a></p>
+                <div class="student"><a href="/" class="nodec student">{{ forloop.counter }}. {{ student.name }}</a></div>
             {% endfor %}
         </div>
         <div class="students_list w50">

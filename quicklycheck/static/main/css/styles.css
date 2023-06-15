@@ -7,8 +7,8 @@
 }
 
 @font-face {
-	font-family: 'A FuturaRound'; 
-	src: url(../fonts/afuturaround.ttf); 
+	font-family: 'A FuturaRound';
+	src: url(../fonts/afuturaround1.ttf);
 }
 
 /* .wrapper {
@@ -20,7 +20,7 @@
 
 .container {
     background-color: rgb(255, 255, 255);
-    max-width: 1500px;
+    max-width: 1200px;
     min-height: 100vh;
     margin: 0 auto;
     box-shadow: 0px 0px 40px 13px rgba(34, 60, 80, 0.2);
@@ -45,7 +45,7 @@
 
 
 .title {
-    font-size: 34px;
+    font-size: 32px;
     font-weight: 700;
     font-style: normal;
     background: linear-gradient(270deg, #4653D2 0%, #E93AD2 100%);
@@ -69,7 +69,7 @@
     box-shadow: 0px 0px 30px rgba(60, 0, 128, 0.15), inset 0px 0px 17px rgba(223, 40, 255, 0.35);
     border-radius: 20px;
     height: 37px;
-    padding: 5px 40px;
+    padding: 8px 40px;
     width: 150px;
     letter-spacing: 0.05em;
     margin: auto 20px;
@@ -83,6 +83,7 @@
     font-size: 18px;
     text-align: center;
     text-transform: uppercase;
+    text-decoration: none;
 }
 
 
@@ -117,28 +118,38 @@
 
 .class_open {
     color: white;
-    background: #3875d7;
+    background: linear-gradient(272.24deg, rgba(70, 83, 210, 0.99) 0.07%, #E93AD2 90.37%);
+    box-shadow: 0 0 26px rgba(60, 0, 128, 0.15), inset 0 0 15px rgba(223, 40, 255, 0.35);
+    border-radius: 89px;
     font-size: 24px;
-    padding: 20px 30px;
-    border-radius: 20px;
-    margin: 0 15px;
+    padding: 5px 30px;
+    height: 40px;
+    margin: auto 15px;
 }
 
 .class_delete {
     color: white;
-    background: #ba2121;
+    box-shadow: inset 0 0 15px rgba(223, 40, 255, 0.35);
+    filter: drop-shadow(0 0 26px rgba(60, 0, 128, 0.15));
+    border-radius: 89px;
     font-size: 24px;
-    padding: 20px 30px;
-    border-radius: 20px;
-    margin: 0 15px;
+    padding: 5px 30px;
+    height: 40px;
+    margin: auto 15px;
+    background: linear-gradient(270deg, #4653D2 0%, #E93AD2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .class_title {
-    font-size: 64px;
+    font-size: 35px;
     font-weight: 700;
     letter-spacing: 0.05em;
     font-style: normal;
-    color: #323232;
+    margin: auto 0;
+    background: linear-gradient(270deg, #4653D2 0%, #E93AD2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .class_content {
@@ -155,6 +166,9 @@
     margin: auto 15px;
     font-weight: 700;
     font-size: 32px;
+    background: linear-gradient(270deg, #4653D2 0%, #E93AD2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .small_plus {
@@ -166,8 +180,10 @@
 }
 
 .students_list {
-    border: 3px solid #323232;
-    border-radius: 30px;
+    background: #F7F7F7;
+    border: 4px solid rgba(233, 58, 210, 0.75);
+    box-shadow: 19px 20px 60px rgba(0, 0, 0, 0.06);
+    border-radius: 50px;
     padding: 30px;
     margin: 30px 30px 0 0;
 }
@@ -176,6 +192,7 @@
     color: #323232;
     font-size: 23px;
     font-weight: 500;
+    margin-top: 10px;
 }
 
 
@@ -188,16 +205,17 @@
 }
 
 .eco {
-    font-size: 64px;
+    font-size: 54px;
     font-weight: 700;
     letter-spacing: 0.05em;
     font-style: normal;
     color: #323232;
     margin: 20px 0 30px 0;
+    letter-spacing: 0.05em;
 }
 
 .highlight {
-    font-size: 64px;
+    font-size: 54px;
     font-weight: 700;
     letter-spacing: 0.05em;
     font-style: normal;
@@ -223,16 +241,12 @@
     margin: 60px 0;
 }
 
-.inline {
-    display: block;
-}
-
 .text {
     font-weight: 400;
     font-style: normal;
-    font-size: 30px;
+    font-size: 28px;
     color:#323232;
-    margin: 60px 0;
+    margin: 44px 0;
 }
 
 .content {
@@ -249,11 +263,13 @@
 
 .choice-title {
     font-weight: 700;
-    font-size: 64px;
+    font-size: 54px;
     background: linear-gradient(270deg, #4653D2 0%, #E93AD2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 80px;
+    margin-top: 40px;
+    margin-bottom: 50px;
+    margin-left: 30px;
 }
 
 .advantages {
@@ -266,18 +282,19 @@
     border-radius: 30px;
     padding: 20px;
     margin: 20px;
+    height: 200px;
 }
 
 .ad-title{
     font-weight: 700;
-    font-size: 28px;
+    font-size: 22px;
     color: #E93AD2;
     margin-bottom: 15px;
 }
 
 .ch-title {
     font-weight: 700;
-    font-size: 32px;
+    font-size: 31px;
     padding: 20px;
 }
 
@@ -394,6 +411,11 @@
     font-size: 2rem;
     font-weight: 600;
     margin-bottom: .5rem;
+    background: linear-gradient(270deg, #4653D2 0%, #E93AD2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
 }
 
 .login-card-header h1+div {
@@ -407,6 +429,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    align-items: center;
 }
 
 .login-card-form .form-item {
@@ -431,7 +454,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: calc(1rem * .8);
+    font-size: calc(1rem * .9);
     margin-bottom: .5rem;
 }
 /* ---------- */
@@ -439,22 +462,24 @@
 /* Login Card Footer */
 .login-card-footer {
     margin-top: 1.5rem;
-    font-size: calc(1rem * .8);
+    font-size: calc(1rem * .9);
 }
 /* ---------- */
 
 /* Login Card Form Elements */
 .login-card input[type="text"],
 .login-card input[type="password"],
-.login-card input[type="email"] {
-    border: none;
+.login-card input[type="email"],
+.login-card input[type="number"]{
     outline: none;
     background: rgba(255, 255, 255, .3);
     padding: 1rem 1.5rem;
     padding-left: calc(1rem * 3.5);
-    border-radius: 100px;
     width: 100%;
     transition: background .5s;
+    border: 2px solid rgba(233, 58, 210, 0.75);
+    filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.31));
+    border-radius: 10px;
 }
 
 .login-card input:focus {
@@ -471,6 +496,7 @@
     color: white;
     padding: 1rem;
     border-radius: 100px;
+    width: 270px;
     font-size: 20px;
     text-align: center;
     text-transform: uppercase;
@@ -486,6 +512,18 @@
 }
 
 
+.blank_image {
+    width: 80%;
+}
 
-
-
+.download {
+    color: white;
+    background: linear-gradient(272.24deg, rgba(70, 83, 210, 0.99) 0.07%, #E93AD2 90.37%);
+    box-shadow: 0 0 26px rgba(60, 0, 128, 0.15), inset 0 0 15px rgba(223, 40, 255, 0.35);
+    border-radius: 89px;
+    font-size: 24px;
+    padding: 5px 30px;
+    height: 40px;
+    margin: auto 15px;
+    text-decoration: none;
+}

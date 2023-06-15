@@ -5,14 +5,20 @@
 {% block content %}
 
     <div class="content margintop100" style="display: flex; justify-content: space-around;">
-    <div class="form">
+    <div class="form login-card">
         <form class="login-card-form" method="POST" enctype="multipart/form-data">
+            <div class="login-card-logo">
+                <img src="{% static 'main/img/favicon.png' %}" alt="logo">
+            </div>
+            <div class="login-card-header">
+                <h1>Новые бланки</h1>
+                <div>Загрузите одно или несколько изображений бланков на проверку</div>
+            </div>
                 {% csrf_token %}
                 <div class="form-item">
-                    <span class="form-item-icon material-symbols-rounded">image</span>
                     <input required name="images" type="file" multiple placeholder="Выберите фото">
                 </div>
-                <button type="submit">Загрузить</button>
+                <button class="upload" type="submit">Проверить</button>
             </form>
     </div>
     </div>

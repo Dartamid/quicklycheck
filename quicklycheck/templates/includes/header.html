@@ -10,9 +10,9 @@
         <a href="{% url 'myclasses' %}"  class="nodec check">
             Мои классы
         </a>
-        <span class="check">
+        <a href="{% url 'download' %}" class="check">
             Бланк
-        </span>
+        </a>
     {% endif %}
     </div>
     <div class="side">
@@ -25,9 +25,6 @@
             </a>
 
         {% else %}
-            <span class="check">
-                Проверка
-            </span>
             <a class="nodec login" href="{% url 'login' %}">
                 Войти
             </a>

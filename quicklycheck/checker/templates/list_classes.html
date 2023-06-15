@@ -16,7 +16,7 @@
             </div>
             <div class="class_actions">
                 <a href="{% url 'class_detail' class.pk %}" class="nodec class_open">Открыть</a>
-                <div class="class_delete">Удалить</div>
+                <a href="{% url 'delete_class' class.pk %}" class="nodec class_delete">Удалить</a>
             </div>
 
         </div>

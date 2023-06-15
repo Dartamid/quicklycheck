@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Главная {% endblock %}
+{% block content %}
+    <div class="content margintop100" style="display: flex">
+        <div class="w50">
+            <img class="blank_image" src="{% static 'main/img/blank.jpg' %}" alt="blank">
+        </div>
+        <div class="w50 instruction">
+            <h2 class="title">Как работать с сервисом?</h2>
+            <ul class="text">
+                <li>Скачайте бланк и распечатайте нужное количество</li>
+                <li>Раздайте ученикам бланки для выполнения</li>
+                <li>Заполните правильные ответы работы на сайте и загрузите бланки</li>
+                <li>Сохраняйте время на проверке!</li>
+            </ul>
+
+            <a class="download" href="{% static 'main/img/blank.jpg' %}" download="">Скачать</a>
+        </div>
+    </div>
+{% endblock %}

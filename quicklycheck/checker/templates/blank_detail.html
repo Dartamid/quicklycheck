@@ -14,6 +14,7 @@
                 <p class="nodec student">{{ forloop.counter }}. {{ r }}</p>
             {% endfor %}
             <div class="student"> Дано {{ score }} правильных ответов из {{ count }}!</div>
+            <div class="student"> Процент выполнения работы - {{ proc }} %</div>
         </div>
     </div>
 {% endblock %}

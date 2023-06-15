@@ -6,7 +6,7 @@
     <div class="content margintop100">
         <div class="promo">
             {% if user.is_authenticated %}
-            <div class="side inline w50">
+            <div class="w50">
                 <div class="eco">
                     <p class='highlight'>Проверим</p> знания учеников по последней теме?
                 </div>
@@ -16,7 +16,7 @@
                 <a href="{% url 'myclasses' %}" class="nodec reg">Мои классы</a>
             </div>
             {% else %}
-            <div class="side inline w50">
+            <div class="w50">
                 <div class="eco">
                     Мы <p class='highlight'>экономим</p> ваше время и силы
                 </div>
