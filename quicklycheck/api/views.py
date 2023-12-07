@@ -1,3 +1,4 @@
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -10,7 +11,9 @@ from .serializers import (
 from checker.models import (
     Class, Student, Test, Pattern, Blank
 )
+from checker.utils import checker
 from rest_framework.permissions import IsAuthenticated
+from io import BytesIO
 
 
 class ClassList(APIView):
@@ -221,12 +224,26 @@ class BlankList(APIView):
         return Response(serializer.data)
 
     def post(self, request, test_pk):
-        serialized = BlankSerializer(data=request.data)
-        test = get_object_or_404(Test, pk=test_pk, teacher=request.user)
-        if serialized.is_valid():
-            serialized.save(test=test, teacher=request.user)
-            return Response(serialized.data, status=status.HTTP_201_CREATED)
-        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+        test = get_object_or_404(Test, pk=test_pk)
+        images = request.FILES.getlist('images')
+        for image in images:
+            results, image = checker(image.temporary_file_path())
+            bytes_io = BytesIO()
+            image.save(bytes_io, format='JPEG')
+            file = InMemoryUploadedFile(
+                bytes_io, None, 'image.jpg', 'image/jpeg',
+                bytes_io.getbuffer().nbytes, None
+            )
+            blank = Blank.objects.create(
+                test=test,
+                author=test.grade.students.all()[int(results['blank_id']) - 1],
+                var=int(results['var']),
+                id_blank=results['blank_id'],
+                answers=','.join(results['answers'].values()),
+                image=file
+            )
+            serialized = BlankSerializer(blank)
+            return Response(serialized.data)
 
 
 class BlankDetail(APIView):

@@ -158,8 +158,10 @@ def check_blank(img, rateX, rateY):
 
 def checker(file):
     img, rX, rY = getting_blank(file)
+    print(rX, rY)
     results = check_blank(img, rX, rY)
     return results, Image.fromarray(img)
 
 
-
+if __name__ == '__main__':
+    print(checker(input()))

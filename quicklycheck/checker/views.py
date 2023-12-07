@@ -1,8 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.files.storage import FileSystemStorage
 from .models import Class, Student, Test, Pattern, Blank
 from io import BytesIO
+import time
 
 # Create your views here.
 from .forms import ClassForm, StudentForm, TestForm, PatternForm
@@ -157,6 +159,8 @@ def add_blanks(request, test_pk):
     if request.method == "POST":
         images = request.FILES.getlist('images')
         for image in images:
+            # fs = FileSystemStorage()
+            # img = fs.save(image.name, image)
             results, image = checker(image.temporary_file_path())
             bytes_io = BytesIO()
             image.save(bytes_io, format='JPEG')
@@ -172,6 +176,7 @@ def add_blanks(request, test_pk):
                 answers=','.join(results['answers'].values()),
                 image=file
             )
+            # fs.delete(img)
         return redirect('myclasses')
     context = {
         'test_pk': test_pk,
@@ -190,7 +195,7 @@ def blank_detail(request, blank_pk):
     pattern = blank.test.patterns.filter(num=blank.var)[0]
     answers = blank.answers.split(',')
     pattern = pattern.pattern.split(',')
-    print(answers, pattern)
+    # print(answers, pattern)
     result = []
     count = 0
     for i in range(len(pattern)):
