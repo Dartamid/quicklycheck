@@ -1,4 +1,5 @@
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     ClassList, ClassDetail, PatternList,
     PatternDetail, StudentList, StudentDetail,
@@ -6,6 +7,8 @@ from .views import (
 )
 
 urlpatterns = [
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/', include('rest_framework.urls')),
     path('classes/', ClassList.as_view()),
     path('class/<int:pk>/', ClassDetail.as_view()),

@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'checker',
     'users',
     'rest_framework',
+    'rest_framework_simplejwt',
     'api',
 ]
 
@@ -81,6 +82,12 @@ FILE_UPLOAD_HANDLERS = (
 AUTHENTICATION_BACKENDS = [
     'users.backends.UserModelBackend'
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 AUTH_USER_MODEL = 'users.User'
 
