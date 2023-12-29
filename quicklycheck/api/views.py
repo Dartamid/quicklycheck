@@ -172,16 +172,19 @@ class StudentDetail(APIView):
 class TestList(APIView):
     serializer_class = TestSerializer
 
-    def get(self, request):
-        tests = request.user.tests
+    def get(self, request, class_pk):
+
+        grade = get_object_or_404(Class, pk=class_pk)
+        tests = grade.tests
         serialized = TestSerializer(tests, many=True)
         return Response(serialized.data)
 
 
-    def post(request):
+    def post(self, request, class_pk):
+        grade = get_object_or_404(Class, pk=class_pk)
         serializer = TestSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(teacher=request.user)
+            serializer.save(teacher=request.user, grade=grade)
             return Response(serializer.data, status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -189,21 +192,21 @@ class TestList(APIView):
 class TestDetail(APIView):
     serializer = TestSerializer
 
-    def get_blank(self, test_pk):
+    def get_test(self, test_pk):
         try:
             return Test.objects.get(pk=test_pk)
         except Test.DoesNotExist:
             raise Http404
 
     def get(self, request, test_pk):
-        test = self.get_blank(test_pk)
+        test = self.get_test(test_pk)
         if test.teacher == request.user:
             serialized = TestSerializer(test)
             return Response(serialized.data)
         raise Http404
 
     def put(self, request, test_pk):
-        test = self.get_blank(test_pk)
+        test = self.get_test(test_pk)
         serialized = TestSerializer(test, data=request.data)
         if serialized.is_valid() and test.teacher == request.user:
             serialized.save()
@@ -211,7 +214,7 @@ class TestDetail(APIView):
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, test_pk):
-        test = self.get_blank(test_pk)
+        test = self.get_test(test_pk)
         if test.teacher == request.user:
             test.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
