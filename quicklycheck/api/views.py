@@ -1,12 +1,12 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import (
     ClassSerializer, StudentSerializer, TestSerializer,
-    PatternSerializer, BlankSerializer
+    PatternSerializer, BlankSerializer, UserSerializer
 )
 from checker.models import (
     Class, Student, Test, Pattern, Blank
@@ -14,6 +14,9 @@ from checker.models import (
 from checker.utils import checker
 from rest_framework.permissions import IsAuthenticated
 from io import BytesIO
+
+from checker.models import User
+from users.forms import CustomUserCreationForm
 
 
 class ClassList(APIView):
@@ -174,7 +177,8 @@ class TestList(APIView):
         serialized = TestSerializer(tests, many=True)
         return Response(serialized.data)
 
-    def post(self, request):
+
+    def post(request):
         serializer = TestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(teacher=request.user)
@@ -280,3 +284,29 @@ class BlankDetail(APIView):
             blank.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         raise Http404
+
+
+class UserList(APIView):
+    def get(self, request):
+        if request.user.is_admin:
+            users = User.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer)
+        else:
+            return HttpResponseForbidden()
+
+    def post(self, request):
+
+        form = CustomUserCreationForm(request.POST)
+
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            if len(User.objects.filter(email=email)) == 0:
+                username = email.replace('@', '', 1)
+                password = form.cleaned_data.get('password1')
+                user = User.objects.create_user(username, email, password)
+                user.save()
+                return Response(status=status.HTTP_201_CREATED)
+            return Response({'data': 'Email already used!'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
