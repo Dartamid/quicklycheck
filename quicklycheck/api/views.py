@@ -182,7 +182,7 @@ class TestList(APIView):
 
     def post(self, request, class_pk):
         grade = get_object_or_404(Class, pk=class_pk)
-        serializer = TestSerializer(data=request.data)
+        serializer = TestSerializer(data=request.data, grade=grade, teacher=request.user)
         if serializer.is_valid():
             serializer.save(teacher=request.user, grade=grade)
             return Response(serializer.data, status.HTTP_201_CREATED)
@@ -257,22 +257,22 @@ class BlankList(APIView):
 class BlankDetail(APIView):
     serializer_class = BlankSerializer
 
-    def get_blank(self, blank_pk):
+    def get_blank(self, pk):
         try:
-            return Blank.objects.get(pk=blank_pk)
+            return Blank.objects.get(pk=pk)
         except Blank.DoesNotExist:
             raise Http404
 
-    def get(self, request, blank_pk):
-        blank = self.get_blank(blank_pk)
+    def get(self, request, pk):
+        blank = self.get_blank(pk)
         test = blank.test
         if test.grade.teacher == request.user:
             serialized = BlankSerializer(blank)
             return Response(serialized.data)
         raise Http404
 
-    def put(self, request, blank_pk):
-        blank = self.get_blank(blank_pk)
+    def put(self, request, pk):
+        blank = self.get_blank(pk)
         serialized = BlankSerializer(blank, data=request.data)
         test = blank.test
         if serialized.is_valid() and test.teacher == request.user:
@@ -280,8 +280,8 @@ class BlankDetail(APIView):
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, blank_pk):
-        blank = self.get_blank(blank_pk)
+    def delete(self, request, pk):
+        blank = self.get_blank(pk)
         test = blank.test
         if test.teacher == request.user:
             blank.delete()

@@ -13,13 +13,13 @@ class ClassSerializer(serializers.ModelSerializer):
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['pk', 'name', 'grade', 'teacher']
+        fields = ['pk', 'name', 'grade']
 
 
 class TestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
-        fields = ['pk', 'teacher', 'grade', 'teacher']
+        fields = ['pk', 'name', 'grade']
 
 
 class PatternSerializer(serializers.ModelSerializer):
