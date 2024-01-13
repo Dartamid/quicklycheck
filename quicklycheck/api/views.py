@@ -304,7 +304,7 @@ class UserList(APIView):
 
     def post(self, request):
 
-        form = CustomUserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.data)
 
         if form.is_valid():
             email = form.cleaned_data.get('email')
