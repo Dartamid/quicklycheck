@@ -314,6 +314,6 @@ class UserList(APIView):
                 user = User.objects.create_user(username, email, password)
                 user.save()
                 return Response(status=status.HTTP_201_CREATED)
-            return Response(status=status.HTTP_400_BAD_REQUEST, exception={'email': 'Данный Email уже используется в системе!'})
+            return Response(data={'email': 'Данный Email уже используется в системе!'}, status=status.HTTP_400_BAD_REQUEST, exception=True)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
