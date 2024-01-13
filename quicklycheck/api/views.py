@@ -83,10 +83,12 @@ class PatternList(APIView):
         return Response(serialized.data)
 
     def post(self, request, test_pk):
-        serialized = PatternSerializer(data=request.data)
         test = get_object_or_404(Test, pk=test_pk, teacher=request.user)
+        data = request.data.copy()
+        data['test'] = test.pk
+        serialized = PatternSerializer(data=data)
         if serialized.is_valid():
-            serialized.save(test=test)
+            serialized.save()
             return Response(serialized.data, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -132,10 +134,12 @@ class StudentList(APIView):
         return Response(serialized.data)
 
     def post(self, request, class_pk):
-        serialized = StudentSerializer(data=request.data)
         grade = get_object_or_404(Class, pk=class_pk, teacher=request.user)
+        data = request.data.copy()
+        data['grade'] = grade.pk
+        serialized = StudentSerializer(data=data)
         if serialized.is_valid():
-            serialized.save(grade=grade, teacher=request.user)
+            serialized.save(teacher=request.user)
             return Response(serialized.data, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -179,12 +183,12 @@ class TestList(APIView):
         serialized = TestSerializer(tests, many=True)
         return Response(serialized.data)
 
-
     def post(self, request, class_pk):
-        grade = get_object_or_404(Class, pk=class_pk)
-        serializer = TestSerializer(data=request.data, grade=grade, teacher=request.user)
+        data = request.data.copy()
+        data['teacher'] = request.user
+        serializer = TestSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(teacher=request.user, grade=grade)
+            serializer.save(teacher=request.user)
             return Response(serializer.data, status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
