@@ -6,10 +6,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import (
     ClassSerializer, StudentSerializer, TestSerializer,
-    PatternSerializer, BlankSerializer, UserSerializer
+    PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer
 )
 from checker.models import (
-    Class, Student, Test, Pattern, Blank
+    Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
 )
 from checker.utils import checker
 from rest_framework.permissions import IsAuthenticated
@@ -326,3 +326,115 @@ class UserList(APIView):
             return Response(data={'detail': 'Данный Email уже используется в системе!'}, status=status.HTTP_400_BAD_REQUEST, exception=True)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class TempTestList(APIView):
+    serializer_class = TestSerializer
+
+    def post(self, request):
+        test = TempTest.objects.create()
+        serializer = TempTestSerializer(test)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class TempPatternList(APIView):
+
+    def get(self, request, test_pk):
+        test = get_object_or_404(TempTest, pk=test_pk)
+        tests = TempPattern.objects.filter(test=test)
+        serializer = TempPatternSerializer(tests, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, test_pk):
+        test = get_object_or_404(TempTest, pk=test_pk)
+        data = request.data.copy()
+        data['test'] = test
+        serializer = TempPatternSerializer(data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TempPatternDetail(APIView):
+    @staticmethod
+    def get_object(patt_pk):
+        try:
+            return TempPattern.objects.get(pk=patt_pk)
+        except TempPattern.DoesNotExist:
+            raise Http404
+
+    def get(self, request, patt_pk):
+        pattern = self.get_object(patt_pk)
+        serialized = TempPatternSerializer(pattern)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+
+    def put(self, request, patt_pk):
+        pattern = self.get_object(patt_pk)
+        serialized = PatternSerializer(pattern, data=request.data)
+        serialized.save()
+        return Response(serialized.data)
+
+    def delete(self, request, patt_pk):
+        pattern = self.get_object(patt_pk)
+        pattern.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TempBlankList(APIView):
+    def get(self, request, test_pk):
+        blanks = get_object_or_404(TempTest, pk=test_pk).blanks
+        serializer = BlankSerializer(blanks, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, test_pk):
+        test = get_object_or_404(TempTest, pk=test_pk)
+        images = request.FILES.getlist('images')
+        serialized_list = {}
+        for image in images:
+            results = checker(image.temporary_file_path())
+            new_image = Image.fromarray(results.img)
+            bytes_io = BytesIO()
+            new_image.save(bytes_io, format='JPEG')
+            file = InMemoryUploadedFile(
+                bytes_io, None, 'image.jpg', 'image/jpeg',
+                bytes_io.getbuffer().nbytes, None
+            )
+            if int(results.var) == [item.num for item in test.patterns.all()]:
+                var = int(results.var)
+            else:
+                var = test.patterns.all()[0]
+            blank = Blank.objects.create(
+                test=test,
+                var=var.pk,
+                id_blank=str(results.id),
+                answers=str(','.join(results.answers.values())),
+                image=file
+            )
+            serialized_list[len(serialized_list.items()) + 1] = BlankSerializer(blank).data
+        return Response(serialized_list)
+
+
+class TempBlankDetail(APIView):
+
+    def get_blank(self, pk):
+        try:
+            return TempBlank.objects.get(pk=pk)
+        except TempBlank.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        blank = self.get_blank(pk)
+        serialized = BlankSerializer(blank)
+        return Response(serialized.data)
+
+    def put(self, request, pk):
+        blank = self.get_blank(pk)
+        serialized = BlankSerializer(blank, data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data)
+
+    def delete(self, request, pk):
+        blank = self.get_blank(pk)
+        blank.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

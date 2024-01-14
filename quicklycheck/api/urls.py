@@ -3,7 +3,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     ClassList, ClassDetail, PatternList,
     PatternDetail, StudentList, StudentDetail,
-    BlankList, BlankDetail, UserList, TestList, TestDetail
+    BlankList, BlankDetail, UserList, TestList, TestDetail, TempTestList, TempPatternList, TempBlankList,
+    TempPatternDetail, TempBlankDetail
 )
 
 urlpatterns = [
@@ -20,5 +21,10 @@ urlpatterns = [
     path('pattern/<int:pk>', PatternDetail.as_view()),
     path('test/<int:test_pk>/blanks/', BlankList.as_view()),
     path('blank/<int:pk>/', BlankDetail.as_view()),
-    path('users/', UserList.as_view())
+    path('users/', UserList.as_view()),
+    path('temp/tests/', TempTestList.as_view()),
+    path('temp/test/<int:test_pk>/patterns/', TempPatternList.as_view()),
+    path('temp/pattern/<int:pk>/', TempPatternDetail.as_view()),
+    path('temp/test/<int:test_pk>/blanks', TempBlankList.as_view()),
+    path('temp/blank/<int:pk>/', TempBlankDetail.as_view())
 ]

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from checker.models import Class, Student, Test, Pattern, Blank
+from checker.models import Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
 
 from users.models import User
 
@@ -38,5 +38,24 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['pk', 'username']
+
+
+class TempTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = ['pk']
+
+
+class TempPatternSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pattern
+        fields = ['pk', 'test', 'num', 'pattern']
+
+
+class TempBlankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blank
+        fields = ['pk', 'test', 'author', 'id_blank', 'var', 'answers']
+
 
 
