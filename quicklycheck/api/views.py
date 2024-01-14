@@ -48,6 +48,8 @@ class ClassList(APIView):
 
 
 class ClassDetail(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get_object(self, pk):
         try:
             return Class.objects.get(pk=pk)
@@ -77,6 +79,7 @@ class ClassDetail(APIView):
 
 class PatternList(APIView):
     serializer_class = PatternSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, test_pk):
         user = request.user
@@ -97,6 +100,7 @@ class PatternList(APIView):
 
 class PatternDetail(APIView):
     serializer = PatternSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_object(self, patt_pk):
         try:
@@ -128,6 +132,7 @@ class PatternDetail(APIView):
 
 class StudentList(APIView):
     serializer_class = StudentSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, class_pk):
         user = request.user
@@ -147,6 +152,8 @@ class StudentList(APIView):
 
 
 class StudentDetail(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get_student(self, student_pk):
         try:
             return Student.objects.get(pk=student_pk)
@@ -177,6 +184,7 @@ class StudentDetail(APIView):
 
 class TestList(APIView):
     serializer_class = TestSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, class_pk):
 
@@ -197,6 +205,7 @@ class TestList(APIView):
 
 class TestDetail(APIView):
     serializer = TestSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_test(self, test_pk):
         try:
@@ -229,6 +238,7 @@ class TestDetail(APIView):
 
 class BlankList(APIView):
     serializer_class = BlankSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, test_pk):
         user = request.user
@@ -271,6 +281,7 @@ class BlankList(APIView):
 
 class BlankDetail(APIView):
     serializer_class = BlankSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_blank(self, pk):
         try:
@@ -305,6 +316,8 @@ class BlankDetail(APIView):
 
 
 class UserList(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get(self, request):
         if request.user.is_admin:
             users = User.objects.all()
@@ -459,10 +472,8 @@ class ChangePasswordView(UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            # Check old password
             if not self.object.check_password(serializer.data.get("old_password")):
                 return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
-            # set_password also hashes the password that the user will get
             self.object.set_password(serializer.data.get("new_password"))
             self.object.save()
             response = {
