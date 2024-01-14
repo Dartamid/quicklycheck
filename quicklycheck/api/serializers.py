@@ -1,3 +1,4 @@
+from django.contrib.auth import password_validation
 from rest_framework import serializers
 from checker.models import Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
 from django.contrib.auth.password_validation import (
@@ -5,11 +6,10 @@ from django.contrib.auth.password_validation import (
     NumericPasswordValidator, UserAttributeSimilarityValidator
 )
 from users.models import User
-
+from django.core import exceptions
 
 password_validators = [
-    MinimumLengthValidator, CommonPasswordValidator,
-    NumericPasswordValidator, UserAttributeSimilarityValidator
+    MinimumLengthValidator, NumericPasswordValidator,
 ]
 
 
@@ -72,8 +72,19 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(
-        required=True, validators=password_validators,
+        required=True,
     )
 
-    class Meta:
-        validators = []
+    def validate(self, data):
+        errors = dict()
+        password = data.get('new_password')
+        try:
+            password_validation.validate_password(password=password)
+        except exceptions.ValidationError as e:
+            errors['detail'] = list(e.messages)
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return super(ChangePasswordSerializer, self).validate(data)
+
