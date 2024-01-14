@@ -240,19 +240,25 @@ class BlankList(APIView):
         serialized_list = {}
         for image in images:
             results = checker(image.temporary_file_path())
-            image = Image.fromarray(results.img)
+            new_image = Image.fromarray(results.img)
             bytes_io = BytesIO()
-            image.save(bytes_io, format='JPEG')
+            new_image.save(bytes_io, format='JPEG')
             file = InMemoryUploadedFile(
                 bytes_io, None, 'image.jpg', 'image/jpeg',
                 bytes_io.getbuffer().nbytes, None
             )
+            if len(test.grade.students.all()) >= int(results.id) - 1:
+                author = test.grade.students.all()[int(results.id) - 1]
+            else:
+                author = test.grade.students.all()[1]
+            if int(results.var) == [item.num for item in test.patterns.all()]:
+                var = int(results.var)
+            else:
+                var = test.patterns.all()[0]
             blank = Blank.objects.create(
                 test=test,
-                # author=test.grade.students.all()[int(results.id) - 1],
-                author=test.grade.students.all()[1],
-                # var=int(results.var),
-                var=int(7),
+                author=author,
+                var=var.pk,
                 id_blank=str(results.id),
                 answers=str(','.join(results.answers.values())),
                 image=file
