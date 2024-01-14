@@ -58,4 +58,8 @@ class TempBlankSerializer(serializers.ModelSerializer):
         fields = ['pk', 'test', 'author', 'id_blank', 'var', 'answers']
 
 
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
 
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)

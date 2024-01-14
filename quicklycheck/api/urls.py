@@ -1,10 +1,11 @@
+
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     ClassList, ClassDetail, PatternList,
     PatternDetail, StudentList, StudentDetail,
     BlankList, BlankDetail, UserList, TestList, TestDetail, TempTestList, TempPatternList, TempBlankList,
-    TempPatternDetail, TempBlankDetail
+    TempPatternDetail, TempBlankDetail, ChangePasswordView
 )
 
 urlpatterns = [
@@ -22,6 +23,7 @@ urlpatterns = [
     path('test/<int:test_pk>/blanks/', BlankList.as_view()),
     path('blank/<int:pk>/', BlankDetail.as_view()),
     path('users/', UserList.as_view()),
+    path('user/password_change/', ChangePasswordView.as_view(), name='password_change'),
     path('temp/tests/', TempTestList.as_view()),
     path('temp/test/<int:test_pk>/patterns/', TempPatternList.as_view()),
     path('temp/pattern/<int:pk>/', TempPatternDetail.as_view()),
