@@ -1,166 +1,220 @@
 import cv2
 import numpy as np
 import math
-from PIL import Image
 
 
-def getting_file(file_name: str):
-    return cv2.imread(file_name)
+def display(img, frame_name="OpenCV Image"):
+    height, width = img.shape[0:2]
+    new_width = 700
+    new_height = int(new_width * (height / width))
+    img = cv2.resize(img, (new_width, new_height))
+    cv2.imshow(frame_name, img)
+    cv2.waitKey(0)
 
 
-def getting_boxes(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+class Blank:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.img = cv2.imread(file_path)
+        self.centers = self.getting_boxes()
+        self.ratio = 0.74
+        self.ver_ratio = None
+        self.hor_ratio = None
+        self.id = None
+        self.var = None
+        self.answers = {str(i): '' for i in range(1, 41)}
 
-    ret, thresh = cv2.threshold(gray, 50, 255, 0)
-    contours, hierarchy = cv2.findContours(thresh, 1, 2)
-    centers = []
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        min_area = 2000
-        max_area = 15000
-        x1, y1 = cnt[0][0]
-        approx = cv2.approxPolyDP(cnt, 0.01 * cv2.arcLength(cnt, True), True)
-        if len(approx) == 4 and area > min_area and area < max_area:
-            x, y, w, h = cv2.boundingRect(cnt)
-            ratio = float(w) / h
-            if ratio >= 0.8 and ratio <= 1.2:
-                M = cv2.moments(cnt)
-                cX = int(M["m10"] / M["m00"])
-                cY = int(M["m01"] / M["m00"])
-                centers.append([cX, cY])
-    if len(centers) == 3:
+    def getting_boxes(self):
+        raw_centers = []
+        gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        _, threshold = cv2.threshold(gray, 120, 255, cv2.THRESH_BINARY)
+
+        contours, _ = cv2.findContours(
+            threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        i = 0
+        min_area = 1000
+        max_area = 100000
+
+        for contour in contours:
+
+            area = cv2.contourArea(contour)
+            if i == 0:
+                i = 1
+                continue
+
+            approx = cv2.approxPolyDP(
+                contour, 0.05 * cv2.arcLength(contour, False), True)
+
+            M = cv2.moments(contour)
+            if M['m00'] != 0.0:
+                x = int(M['m10'] / M['m00'])
+                y = int(M['m01'] / M['m00'])
+
+            if len(approx) == 4 and min_area < area < max_area:
+                x, y, w, h = cv2.boundingRect(contour)
+                ratio = float(w) / h
+                if 0.5 <= ratio <= 2:
+                    # cv2.drawContours(self.img, [contour], 0, (0, 0, 255), 2)
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    raw_centers.append([[cx, cy], area])
+                    # cv2.circle(self.img, (cx, cy), 7, (255, 255, 255), -1)
+
+        centers = self.find_closest_values(raw_centers)
+        centers = self.sort_coordinates(self.get_distances(centers))
+
         return centers
-    else:
-        print('С изображением что-то не так!')
-        exit(0)
 
+    @staticmethod
+    def sort_coordinates(points):
+        center = np.mean([item[0] for item in points], axis=0)
+        sorted_points = sorted(points, key=lambda point: np.arctan2(point[0][1] - center[1], point[0][0] - center[0]))
 
-def getting_distances(boxes):
-    boxesWithDistances = []
-    for box in range(3):
-        dstn = []
-        for other_box in range(3):
-            dstn.append(
-                int(math.hypot(abs(boxes[other_box][0] - boxes[box][0]), abs(boxes[other_box][1] - boxes[box][1]))))
-        boxesWithDistances.append([boxes[box], dstn])
-    return boxesWithDistances
+        mark = 0
+        min_diff = 10**10
+        for i in range(len(sorted_points)):
+            if min_diff > sum(sorted_points[i][1]):
+                mark = i
+                min_diff = sum(sorted_points[i][1])
 
+        new_points = []
+        for i in range(len(sorted_points)):
+            point = (i + mark + 2) % len(sorted_points)
+            if point != mark:
+                new_points.append(sorted_points[point])
+        return [point[0] for point in new_points]
 
-def getting_rates(boxes):
-    main_box = boxes[0]
-    right_box = boxes[1]
-    bottom_box = boxes[2]
-    ratioX = abs(main_box[0][0] - right_box[0][0]) / 915
-    ratioY = abs(main_box[0][1] - bottom_box[0][1]) / 1350
-    return ratioX, ratioY
+    @staticmethod
+    def get_distances(cen):
+        out_boxs = []
+        for box in cen:
+            dstn = []
+            for other_box in cen:
+                dstn.append(
+                    round(
+                        math.hypot(abs(other_box[0] - box[0]), abs(other_box[1] - box[1]))))
+            out_boxs.append([box, sorted(dstn, reverse=True)])
+        return sorted(out_boxs, key=lambda item: sum(item[1]), reverse=True)
 
+    @staticmethod
+    def find_closest_values(cen):
+        sorted_lst = sorted(
+            cen,
+            key=lambda item: sum([abs(item[1]-i[1]) for i in cen]))
+        return [i[0] for i in sorted_lst[:5]]
 
-def get_angle(distances):
-    if distances[0][0][0] - distances[2][0][0] != 0:
-        y_line = distances[0][0][1] - distances[2][0][1]
-        x_line = distances[0][0][0] - distances[2][0][0]
-        rad = np.arctan(x_line / y_line)
-        return abs(math.degrees(rad) - 90)
-    else:
-        return 0
+    def get_result(self):
+        img = self.img
+        cen = self.centers
+        row, col = img.shape[:2]
+        pts1 = np.float32(cen)
 
+        ratio = self.ratio
+        cardH = math.sqrt(
+            (pts1[2][0] - pts1[1][0]) * (pts1[2][0] - pts1[1][0]) + (pts1[2][1] - pts1[1][1]) * (
+                        pts1[2][1] - pts1[1][1]))
+        cardW = ratio * cardH
+        pts2 = np.float32(
+            [[pts1[0][0], pts1[0][1]], [pts1[0][0] + cardW, pts1[0][1]], [pts1[0][0] + cardW, pts1[0][1] + cardH],
+             [pts1[0][0], pts1[0][1] + cardH]])
 
-def blankdata(image):
-    centers = getting_boxes(image)
-    distances = getting_distances(centers)
-    distances = sorted(distances, key=lambda box: sum(box[1]))
-    sorted_distances = sorted(distances, key=lambda box: math.hypot(box[0][0], box[0][1]))
-    return {
-        'centers': centers,
-        'sorted_distances': sorted_distances
-    }
+        M = cv2.getPerspectiveTransform(pts1, pts2)
 
-
-def getting_blank(file_name):
-    image = getting_file(file_name)
-    blank = blankdata(image)
-    radians = get_angle(blank['sorted_distances'])
-    if radians != 0:
-        image = Image.fromarray(image)
-        image = image.rotate(radians, expand=True)
-        image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-    blank = blankdata(image)
-    rateX, rateY = getting_rates(blank['sorted_distances'])
-    img = image[
-          blank['sorted_distances'][0][0][1] - int(68 * rateY): blank['sorted_distances'][2][0][1] + int(68 * rateY),
-          blank['sorted_distances'][0][0][0] - int(68 * rateX): blank['sorted_distances'][1][0][0] + int(68 * rateX)]
-    return img, rateX, rateY
-
-
-def check_line(image, firstChB, count, inter, rX, rY, addition=0):
-    result = ''
-    for checkbox in range(count):
-        pixel = image[int(firstChB[1] * rY), int((firstChB[0] + inter * checkbox) * rX)]
-        # cv2.circle(image, (int((firstChB[0] + inter * checkbox)* rX), int(firstChB[1] * rY)), 7, (0, 0, 0), -1)
-        if pixel < 100:
-            result += str(checkbox + addition)
-    # cv2.imshow('test', image)
-    # cv2.waitKey(0)
-    return result
-
-
-def check_blank(img, rateX, rateY):
-    result = {
-        'blank_id': 0,
-        'var': 0,
-        'answers': {},
-    }
-    img = cv2.GaussianBlur(img, (17, 17), 0)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blank_id0 = check_line(img, [243, 195], 10, 45, rateX, rateY, 0)
-    blank_id1 = check_line(img, [243, 255], 10, 45, rateX, rateY, 0)
-    result['blank_id'] = blank_id0 + blank_id1
-    var = check_line(img, [243, 315], 10, 45, rateX, rateY, 0)
-    result['var'] = var
-
-    start = 0
-    for i in range(1, 11):
-        answer = check_line(img, [126, 438 + 35 * (i - 1)], 5, 40, rateX, rateY, 1)
-        correstion = check_line(img, [335, 438 + 35 * (i - 1)], 5, 40, rateX, rateY, 1)
-        if correstion == '':
-            result['answers'][f'{start + i}'] = answer
+        if cen[0][1] > cen[-2][1]:
+            offsetSize = row
+        elif cen[0][0] > cen[-2][0]:
+            offsetSize = abs(cen[0][0] - cen[-2][0])
         else:
-            result['answers'][f'{start + i}'] = correstion
+            offsetSize = 500
 
-    start = 10
-    for i in range(1, 11):
-        answer = check_line(img, [126, 860 + 35 * (i - 1)], 5, 40, rateX, rateY, 1)
-        correstion = check_line(img, [335, 860 + 35 * (i - 1)], 5, 40, rateX, rateY, 1)
-        if correstion == '':
-            result['answers'][f'{start + i}'] = answer
-        else:
-            result['answers'][f'{start + i}'] = correstion
 
-    start = 20
-    for i in range(1, 11):
-        answer = check_line(img, [608, 438 + 35 * (i - 1)], 5, 40, rateX, rateY, 1)
-        correstion = check_line(img, [817, 438 + 35 * (i - 1)], 5, 40, rateX, rateY, 1)
-        if correstion == '':
-            result['answers'][f'{start + i}'] = answer
-        else:
-            result['answers'][f'{start + i}'] = correstion
 
-    start = 30
-    for i in range(1, 11):
-        answer = check_line(img, [608, 860 + 35 * (i - 1)], 5, 40, rateX, rateY, 1)
-        correstion = check_line(img, [817, 860 + 35 * (i - 1)], 5, 40, rateX, rateY, 1)
-        if correstion == '':
-            result['answers'][f'{start + i}'] = answer
-        else:
-            result['answers'][f'{start + i}'] = correstion
-    return result
+        transformed = np.zeros((int(cardW + offsetSize), int(cardH + offsetSize)), dtype=np.uint8)
+        dst = cv2.warpPerspective(img, M, transformed.shape)
+
+        self.img = dst
+
+        self.centers = self.getting_boxes()
+        self.get_ratio()
+        self.img = self.img[
+              self.centers[0][1] - round(67 * self.ver_ratio): self.centers[-2][1] + round(
+                  54 * self.ver_ratio),
+              self.centers[0][0] - round(68 * self.hor_ratio): self.centers[1][0] + round(
+                  68 * self.hor_ratio)]
+
+        return self.img
+
+    def get_ratio(self):
+        self.hor_ratio = abs(self.centers[0][0] - self.centers[1][0]) / 915
+        self.ver_ratio = abs(self.centers[0][1] - self.centers[-1][1]) / 1234
+
+    def check_line(self, image, first_check, count, inter, addition=0):
+        result = ''
+        y = round(first_check[1] * self.ver_ratio)
+        for checkbox in range(count):
+            x = round((first_check[0] * self.hor_ratio) + (inter * self.ver_ratio) * checkbox)
+            pixel = image[y, x]
+            print(pixel)
+            if pixel < 70:
+                result += str(checkbox + addition)
+            cv2.circle(image, (x, y), 7, (0, 0, 0), -1)
+        display(image)
+        return result
+
+    def check_data(self):
+        gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        _, img = cv2.threshold(gray, 120, 200, cv2.THRESH_BINARY)
+        img = cv2.GaussianBlur(img, (17, 17), 0)
+
+        blank_id0 = self.check_line(img, [243, 195], 10, 45, 0)
+        blank_id1 = self.check_line(img, [243, 255], 10, 45, 0)
+        self.id = blank_id0 + blank_id1
+        self.var = self.check_line(img, [243, 315], 10, 45, 0)
+
+        start = 0
+        for i in range(1, 11):
+            answer = self.check_line(img, [126, 442 + 35 * (i - 1)], 5, 40, 1)
+            correction = self.check_line(img, [335, 440   + 35 * (i - 1)], 5, 40, 1)
+            if correction == '':
+                self.answers[f'{start + i}'] = answer
+            else:
+                self.answers[f'{start + i}'] = correction
+
+        start = 10
+        for i in range(1, 11):
+            answer = self.check_line(img, [128, 861 + 35 * (i - 1)], 5, 40, 1)
+            correction = self.check_line(img, [335, 861   + 35 * (i - 1)], 5, 40, 1)
+            if correction == '':
+                self.answers[f'{start + i}'] = answer
+            else:
+                self.answers[f'{start + i}'] = correction
+
+        start = 20
+        for i in range(1, 11):
+            answer = self.check_line(img, [609, 441 + 35 * (i - 1)], 5, 40, 1)
+            correction = self.check_line(img, [818, 441 + 35 * (i - 1)], 5, 40, 1)
+            if correction == '':
+                self.answers[f'{start + i}'] = answer
+            else:
+                self.answers[f'{start + i}'] = correction
+
+        start = 30
+        for i in range(1, 11):
+            answer = self.check_line(img, [606, 858 + 35 * (i - 1)], 5, 40, 1)
+            correction = self.check_line(img, [815, 858 + 35 * (i - 1)], 5, 40, 1)
+            if correction == '':
+                self.answers[f'{start + i}'] = answer
+            else:
+                self.answers[f'{start + i}'] = correction
+
+        return self
 
 
 def checker(file):
-    img, rX, rY = getting_blank(file)
-    results = check_blank(img, rX, rY)
-    return results, Image.fromarray(img)
+    blank = Blank('file')
+    blank.get_result()
+    return blank
 
 
-if __name__ == '__main__':
-    print(checker(input()))
+
