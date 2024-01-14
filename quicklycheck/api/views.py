@@ -237,7 +237,7 @@ class BlankList(APIView):
     def post(self, request, test_pk):
         test = get_object_or_404(Test, pk=test_pk)
         images = request.FILES.getlist('images')
-        serialized_list = []
+        serialized_list = {}
         for image in images:
             results = checker(image.temporary_file_path())
             image = Image.fromarray(results.img)
@@ -249,13 +249,15 @@ class BlankList(APIView):
             )
             blank = Blank.objects.create(
                 test=test,
-                author=test.grade.students.all()[int(results.id) - 1],
-                var=int(results.var),
-                id_blank=results.id,
-                answers=','.join(results.answers.values()),
+                # author=test.grade.students.all()[int(results.id) - 1],
+                author=test.grade.students.all()[1],
+                # var=int(results.var),
+                var=int(7),
+                id_blank=str(results.id),
+                answers=str(','.join(results.answers.values())),
                 image=file
             )
-            serialized_list.append(BlankSerializer(blank))
+            serialized_list[len(serialized_list.items()) + 1] = BlankSerializer(blank).data
         return Response(serialized_list)
 
 

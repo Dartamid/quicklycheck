@@ -104,7 +104,7 @@ class Blank:
             key=lambda item: sum([abs(item[1]-i[1]) for i in cen]))
         return [i[0] for i in sorted_lst[:5]]
 
-    def get_result(self):
+    def get_perspective(self):
         img = self.img
         cen = self.centers
         row, col = img.shape[:2]
@@ -155,14 +155,14 @@ class Blank:
         for checkbox in range(count):
             x = round((first_check[0] * self.hor_ratio) + (inter * self.ver_ratio) * checkbox)
             pixel = image[y, x]
-            print(pixel)
             if pixel < 70:
                 result += str(checkbox + addition)
             cv2.circle(image, (x, y), 7, (0, 0, 0), -1)
-        display(image)
+        # display(image)
         return result
 
     def check_data(self):
+        self.get_perspective()
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
         _, img = cv2.threshold(gray, 120, 200, cv2.THRESH_BINARY)
         img = cv2.GaussianBlur(img, (17, 17), 0)
@@ -212,8 +212,8 @@ class Blank:
 
 
 def checker(file):
-    blank = Blank('file')
-    blank.get_result()
+    blank = Blank(file)
+    blank.check_data()
     return blank
 
 
