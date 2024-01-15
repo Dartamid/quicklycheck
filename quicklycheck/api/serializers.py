@@ -40,7 +40,7 @@ class PatternSerializer(serializers.ModelSerializer):
 class BlankSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blank
-        fields = ['pk', 'test', 'author', 'id_blank', 'var', 'answers']
+        fields = ['pk', 'test', 'author', 'image', 'id_blank', 'var', 'answers']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -64,7 +64,7 @@ class TempPatternSerializer(serializers.ModelSerializer):
 class TempBlankSerializer(serializers.ModelSerializer):
     class Meta:
         model = TempBlank
-        fields = ['pk', 'test', 'author', 'id_blank', 'var', 'answers']
+        fields = ['pk', 'test', 'author', 'image', 'id_blank', 'var', 'answers']
 
 
 class ChangePasswordSerializer(serializers.Serializer):
