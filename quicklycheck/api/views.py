@@ -279,14 +279,14 @@ class BlankList(APIView):
                 author = test.grade.students.all()[int(results.id) - 1]
             else:
                 author = test.grade.students.all()[1]
-            if int(results.var) == [item.num for item in test.patterns.all()]:
+            if int(results.var) in [item.num for item in test.patterns.all()]:
                 var = int(results.var)
             else:
-                var = test.patterns.all()[0]
+                var = test.patterns.all()[0].num
             blank = Blank.objects.create(
                 test=test,
                 author=author,
-                var=var.pk,
+                var=var,
                 id_blank=str(results.id),
                 answers=str(','.join(results.answers.values())),
                 image=file
@@ -426,13 +426,13 @@ class TempBlankList(APIView):
                 bytes_io, None, 'image.jpg', 'image/jpeg',
                 bytes_io.getbuffer().nbytes, None
             )
-            if int(results.var) == [item.num for item in test.patterns.all()]:
+            if int(results.var) in [item.num for item in test.patterns.all()]:
                 var = int(results.var)
             else:
-                var = test.patterns.all()[0]
+                var = test.patterns.all()[0].num
             blank = Blank.objects.create(
                 test=test,
-                var=var.pk,
+                var=var,
                 id_blank=str(results.id),
                 answers=str(','.join(results.answers.values())),
                 image=file
