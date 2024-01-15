@@ -51,19 +51,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TempTestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Test
+        model = TempTest
         fields = ['pk']
 
 
 class TempPatternSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Pattern
+        model = TempPattern
         fields = ['pk', 'test', 'num', 'pattern']
 
 
 class TempBlankSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Blank
+        model = TempBlank
         fields = ['pk', 'test', 'author', 'id_blank', 'var', 'answers']
 
 

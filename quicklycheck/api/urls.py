@@ -26,7 +26,7 @@ urlpatterns = [
     path('user/password_change/', ChangePasswordView.as_view(), name='password_change'),
     path('temp/tests/', TempTestList.as_view()),
     path('temp/test/<int:test_pk>/patterns/', TempPatternList.as_view()),
-    path('temp/pattern/<int:pk>/', TempPatternDetail.as_view()),
+    path('temp/pattern/<int:patt_pk>/', TempPatternDetail.as_view()),
     path('temp/test/<int:test_pk>/blanks', TempBlankList.as_view()),
     path('temp/blank/<int:pk>/', TempBlankDetail.as_view())
 ]

@@ -362,8 +362,8 @@ class TempPatternList(APIView):
     def post(self, request, test_pk):
         test = get_object_or_404(TempTest, pk=test_pk)
         data = request.data.copy()
-        data['test'] = test
-        serializer = TempPatternSerializer(data)
+        data['test'] = test.pk
+        serializer = TempPatternSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -456,12 +456,8 @@ class TempBlankDetail(APIView):
 
 
 class ChangePasswordView(UpdateAPIView):
-    """
-    An endpoint for changing password.
-    """
     serializer_class = ChangePasswordSerializer
     model = User
-    permission_classes = (IsAuthenticated,)
 
     def get_object(self, queryset=None):
         obj = self.request.user
