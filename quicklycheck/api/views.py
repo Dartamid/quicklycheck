@@ -1,7 +1,7 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.generics import UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,6 +21,12 @@ from checker.models import User
 from users.forms import CustomUserCreationForm
 
 
+class IsTeacher(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if obj.teacher == request.user:
+            return True
+
+
 class ClassList(APIView):
     serializer_class = ClassSerializer
     permission_classes = (IsAuthenticated,)
@@ -28,7 +34,6 @@ class ClassList(APIView):
     def get_queryset(self):
         teacher = self.request.user
         queryset = Class.objects.filter(teacher=teacher)
-
         return queryset
 
     def get(self, request):
@@ -48,20 +53,20 @@ class ClassList(APIView):
 
 
 class ClassDetail(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return Class.objects.all()
 
     def get_object(self, pk):
-        try:
-            return Class.objects.get(pk=pk)
-        except Class.DoesNotExist:
-            raise Http404
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get(self, request, pk):
         inst = self.get_object(pk)
-        if inst.teacher == request.user:
-            serialized = ClassSerializer(inst)
-            return Response(serialized.data)
-        raise Http404
+        serialized = ClassSerializer(inst)
+        return Response(serialized.data)
 
     def put(self, request, pk):
         inst = self.get_object(pk)
@@ -100,21 +105,20 @@ class PatternList(APIView):
 
 class PatternDetail(APIView):
     serializer = PatternSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return Pattern.objects.all()
 
     def get_object(self, patt_pk):
-        try:
-            return Pattern.objects.get(pk=patt_pk)
-        except Pattern.DoesNotExist:
-            raise Http404
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["patt_pk"])
+        self.check_object_permissions(self.request, obj.test)
+        return obj
 
     def get(self, request, patt_pk):
         pattern = self.get_object(patt_pk)
         serialized = PatternSerializer(pattern)
-        if pattern.grade.teacher == request.user:
-            serialized = PatternSerializer(pattern)
-            return Response(serialized.data)
-        raise Http404
+        return Response(serialized.data)
 
     def put(self, request, patt_pk):
         pattern = self.get_object(patt_pk)
@@ -152,34 +156,33 @@ class StudentList(APIView):
 
 
 class StudentDetail(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsTeacher)
 
-    def get_student(self, student_pk):
-        try:
-            return Student.objects.get(pk=student_pk)
-        except Student.DoesNotExist:
-            raise Http404
+    def get_queryset(self):
+        return Student.objects.all()
+
+    def get_object(self, pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get(self, request, student_pk):
-        student = self.get_student(student_pk)
-        if student.grade.teacher == request.user:
-            serialized = StudentSerializer(student)
-            return Response(serialized.data)
-        raise Http404
+        student = self.get_object(student_pk)
+        serialized = StudentSerializer(student)
+        return Response(serialized.data)
 
     def put(self, request, student_pk):
-        student = self.get_student(student_pk)
+        student = self.get_object(student_pk)
         serialized = StudentSerializer(student, data=request.data)
-        if serialized.is_valid() and student.grade.teacher == request.user:
+        if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, student_pk):
-        student = self.get_student(student_pk)
-        if student.grade.teacher == request.user:
-            student.delete()
-        raise Http404
+        student = self.get_object(student_pk)
+        student.delete()
+        return Response(data={'detail': 'Ученик удален!'}, status=status.HTTP_204_NO_CONTENT)
 
 
 class TestList(APIView):
@@ -386,8 +389,10 @@ class TempPatternDetail(APIView):
     def put(self, request, patt_pk):
         pattern = self.get_object(patt_pk)
         serialized = PatternSerializer(pattern, data=request.data)
-        serialized.save()
-        return Response(serialized.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data, status=status.HTTP_200_OK)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, patt_pk):
         pattern = self.get_object(patt_pk)
