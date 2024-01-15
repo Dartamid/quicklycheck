@@ -161,8 +161,8 @@ class StudentDetail(APIView):
     def get_queryset(self):
         return Student.objects.all()
 
-    def get_object(self, pk):
-        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+    def get_object(self, student_pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["student_pk"])
         self.check_object_permissions(self.request, obj)
         return obj
 
