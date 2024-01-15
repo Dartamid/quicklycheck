@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from .serializers import (
     ClassSerializer, StudentSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer, TempBlankSerializer
 )
 from checker.models import (
     Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
@@ -403,7 +403,7 @@ class TempPatternDetail(APIView):
 
     def put(self, request, patt_pk):
         pattern = self.get_object(patt_pk)
-        serialized = PatternSerializer(pattern, data=request.data)
+        serialized = TempPatternSerializer(pattern, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data, status=status.HTTP_200_OK)
@@ -418,7 +418,7 @@ class TempPatternDetail(APIView):
 class TempBlankList(APIView):
     def get(self, request, test_pk):
         blanks = get_object_or_404(TempTest, pk=test_pk).blanks
-        serializer = BlankSerializer(blanks, many=True)
+        serializer = TempBlankSerializer(blanks, many=True)
         return Response(serializer.data)
 
     def post(self, request, test_pk):
@@ -459,12 +459,12 @@ class TempBlankDetail(APIView):
 
     def get(self, request, pk):
         blank = self.get_blank(pk)
-        serialized = BlankSerializer(blank)
+        serialized = TempBlankSerializer(blank)
         return Response(serialized.data)
 
     def put(self, request, pk):
         blank = self.get_blank(pk)
-        serialized = BlankSerializer(blank, data=request.data)
+        serialized = TempBlankSerializer(blank, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
