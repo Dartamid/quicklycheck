@@ -282,7 +282,10 @@ class BlankList(APIView):
             if int(results.var) in [item.num for item in test.patterns.all()]:
                 var = int(results.var)
             else:
-                var = test.patterns.all()[0].num
+                if len(test.patterns.all()) > 0:
+                    var = test.patterns.all()[0].num
+                else:
+                    return Response('У данного теста не найдены варианты!', status=status.HTTP_400_BAD_REQUEST)
             blank = Blank.objects.create(
                 test=test,
                 author=author,
@@ -429,7 +432,10 @@ class TempBlankList(APIView):
             if int(results.var) in [item.num for item in test.patterns.all()]:
                 var = int(results.var)
             else:
-                var = test.patterns.all()[0].num
+                if len(test.patterns.all()) > 0:
+                    var = test.patterns.all()[0].num
+                else:
+                    return Response('У данного теста не найдены варианты!', status=status.HTTP_400_BAD_REQUEST)
             blank = TempBlank.objects.create(
                 test=test,
                 var=var,
