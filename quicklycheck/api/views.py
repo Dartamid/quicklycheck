@@ -228,10 +228,8 @@ class TestDetail(APIView):
 
     def get(self, request, test_pk):
         test = self.get_object(test_pk)
-        if test.teacher == request.user:
-            serialized = TestSerializer(test)
-            return Response(serialized.data)
-        raise Http404
+        serialized = TestSerializer(test)
+        return Response(serialized.data)
 
     def put(self, request, test_pk):
         test = self.get_object(test_pk)
@@ -252,21 +250,20 @@ class BlankList(APIView):
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
-        return Blank.objects.all()
+        return Test.objects.all()
 
     def get_object(self, test_pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["test_pk"])
-        self.check_object_permissions(self.request, obj.test)
+        self.check_object_permissions(self.request, obj)
         return obj
 
     def get(self, request, test_pk):
-        user = request.user
-        blanks = get_object_or_404(Test, pk=test_pk, teacher=user).blanks
+        blanks = self.get_object(test_pk).blanks
         serializer = BlankSerializer(blanks, many=True)
         return Response(serializer.data)
 
     def post(self, request, test_pk):
-        test = get_object_or_404(Test, pk=test_pk)
+        test = self.get_object(test_pk)
         images = request.FILES.getlist('images')
         serialized_list = {}
         for image in images:
@@ -300,38 +297,33 @@ class BlankList(APIView):
 
 class BlankDetail(APIView):
     serializer_class = BlankSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsTeacher)
 
-    def get_blank(self, pk):
-        try:
-            return Blank.objects.get(pk=pk)
-        except Blank.DoesNotExist:
-            raise Http404
+    def get_queryset(self):
+        return Blank.objects.all()
+
+    def get_object(self, pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj.test)
+        return obj
 
     def get(self, request, pk):
-        blank = self.get_blank(pk)
-        test = blank.test
-        if test.grade.teacher == request.user:
-            serialized = BlankSerializer(blank)
-            return Response(serialized.data)
-        raise Http404
+        blank = self.get_object(pk)
+        serialized = BlankSerializer(blank)
+        return Response(serialized.data)
 
     def put(self, request, pk):
-        blank = self.get_blank(pk)
+        blank = self.get_object(pk)
         serialized = BlankSerializer(blank, data=request.data)
-        test = blank.test
-        if serialized.is_valid() and test.teacher == request.user:
+        if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        blank = self.get_blank(pk)
-        test = blank.test
-        if test.teacher == request.user:
-            blank.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        raise Http404
+        blank = self.get_object(pk)
+        blank.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserList(APIView):
@@ -361,7 +353,7 @@ class UserList(APIView):
 
 
 class TempTestList(APIView):
-    serializer_class = TestSerializer
+    serializer_class = TempTestSerializer
 
     def post(self, request):
         test = TempTest.objects.create()
@@ -445,7 +437,7 @@ class TempBlankList(APIView):
                 answers=str(','.join(results.answers.values())),
                 image=file
             )
-            serialized_list[len(serialized_list.items()) + 1] = BlankSerializer(blank).data
+            serialized_list[len(serialized_list.items()) + 1] = TempBlankSerializer(blank).data
         return Response(serialized_list)
 
 
