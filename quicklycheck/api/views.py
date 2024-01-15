@@ -14,7 +14,7 @@ from checker.models import (
     Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
 )
 from checker.utils import checker
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from io import BytesIO
 from PIL import Image
 from checker.models import User
@@ -187,11 +187,18 @@ class StudentDetail(APIView):
 
 class TestList(APIView):
     serializer_class = TestSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return Class.objects.all()
+
+    def get_object(self, class_pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["class_pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get(self, request, class_pk):
-
-        grade = get_object_or_404(Class, pk=class_pk)
+        grade = self.get_object(class_pk)
         tests = grade.tests
         serialized = TestSerializer(tests, many=True)
         return Response(serialized.data)
@@ -199,6 +206,7 @@ class TestList(APIView):
     def post(self, request, class_pk):
         data = request.data.copy()
         data['teacher'] = request.user
+        data['grade'] = self.get_object(class_pk).pk
         serializer = TestSerializer(data=data)
         if serializer.is_valid():
             serializer.save(teacher=request.user)
@@ -208,40 +216,48 @@ class TestList(APIView):
 
 class TestDetail(APIView):
     serializer = TestSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsTeacher)
 
-    def get_test(self, test_pk):
-        try:
-            return Test.objects.get(pk=test_pk)
-        except Test.DoesNotExist:
-            raise Http404
+    def get_queryset(self):
+        return Test.objects.all()
+
+    def get_object(self, test_pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["test_pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get(self, request, test_pk):
-        test = self.get_test(test_pk)
+        test = self.get_object(test_pk)
         if test.teacher == request.user:
             serialized = TestSerializer(test)
             return Response(serialized.data)
         raise Http404
 
     def put(self, request, test_pk):
-        test = self.get_test(test_pk)
+        test = self.get_object(test_pk)
         serialized = TestSerializer(test, data=request.data)
-        if serialized.is_valid() and test.teacher == request.user:
+        if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, test_pk):
-        test = self.get_test(test_pk)
-        if test.teacher == request.user:
-            test.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        raise Http404
+        test = self.get_object(test_pk)
+        test.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BlankList(APIView):
     serializer_class = BlankSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return Blank.objects.all()
+
+    def get_object(self, test_pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["test_pk"])
+        self.check_object_permissions(self.request, obj.test)
+        return obj
 
     def get(self, request, test_pk):
         user = request.user
@@ -319,7 +335,6 @@ class BlankDetail(APIView):
 
 
 class UserList(APIView):
-    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         if request.user.is_admin:
