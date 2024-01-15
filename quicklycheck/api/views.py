@@ -416,7 +416,7 @@ class TempBlankList(APIView):
     def post(self, request, test_pk):
         test = get_object_or_404(TempTest, pk=test_pk)
         images = request.FILES.getlist('images')
-        serialized_list = {}
+        serialized_list = []
         for image in images:
             results = checker(image.temporary_file_path())
             new_image = Image.fromarray(results.img)
@@ -430,14 +430,14 @@ class TempBlankList(APIView):
                 var = int(results.var)
             else:
                 var = test.patterns.all()[0].num
-            blank = Blank.objects.create(
+            blank = TempBlank.objects.create(
                 test=test,
                 var=var,
                 id_blank=str(results.id),
                 answers=str(','.join(results.answers.values())),
                 image=file
             )
-            serialized_list[len(serialized_list.items()) + 1] = TempBlankSerializer(blank).data
+            serialized_list.append(TempBlankSerializer(blank).data)
         return Response(serialized_list)
 
 

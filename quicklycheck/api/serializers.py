@@ -64,7 +64,7 @@ class TempPatternSerializer(serializers.ModelSerializer):
 class TempBlankSerializer(serializers.ModelSerializer):
     class Meta:
         model = TempBlank
-        fields = ['pk', 'test', 'author', 'image', 'id_blank', 'var', 'answers']
+        fields = ['pk', 'test', 'image', 'id_blank', 'var', 'answers']
 
 
 class ChangePasswordSerializer(serializers.Serializer):
