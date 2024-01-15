@@ -27,7 +27,7 @@ class Blank:
     def getting_boxes(self):
         raw_centers = []
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-        _, threshold = cv2.threshold(gray, 120, 255, cv2.THRESH_BINARY)
+        _, threshold = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
 
         contours, _ = cv2.findContours(
             threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -60,6 +60,8 @@ class Blank:
                     cy = int(M["m01"] / M["m00"])
                     raw_centers.append([[cx, cy], area])
                     # cv2.circle(self.img, (cx, cy), 7, (255, 255, 255), -1)
+
+        # display(gray)
 
         centers = self.find_closest_values(raw_centers)
         centers = self.sort_coordinates(self.get_distances(centers))
@@ -155,7 +157,7 @@ class Blank:
         for checkbox in range(count):
             x = round((first_check[0] * self.hor_ratio) + (inter * self.ver_ratio) * checkbox)
             pixel = image[y, x]
-            if pixel < 70:
+            if pixel < 90:
                 result += str(checkbox + addition)
             cv2.circle(image, (x, y), 7, (0, 0, 0), -1)
         # display(image)
@@ -164,18 +166,18 @@ class Blank:
     def check_data(self):
         self.get_perspective()
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-        _, img = cv2.threshold(gray, 120, 200, cv2.THRESH_BINARY)
-        img = cv2.GaussianBlur(img, (17, 17), 0)
+        # _, img = cv2.threshold(self.img, 112, 200, cv2.THRESH_BINARY)
+        img = cv2.GaussianBlur(gray, (11, 11), 0)
 
         blank_id0 = self.check_line(img, [243, 195], 10, 45, 0)
         blank_id1 = self.check_line(img, [243, 255], 10, 45, 0)
         self.id = blank_id0 + blank_id1
-        self.var = self.check_line(img, [243, 315], 10, 45, 0)
+        self.var = self.check_line(img, [243, 315], 10, 45, 1)
 
         start = 0
         for i in range(1, 11):
             answer = self.check_line(img, [126, 442 + 35 * (i - 1)], 5, 40, 1)
-            correction = self.check_line(img, [335, 440   + 35 * (i - 1)], 5, 40, 1)
+            correction = self.check_line(img, [335, 440 + 35 * (i - 1)], 5, 40, 1)
             if correction == '':
                 self.answers[f'{start + i}'] = answer
             else:
@@ -215,6 +217,3 @@ def checker(file):
     blank = Blank(file)
     blank.check_data()
     return blank
-
-
-
