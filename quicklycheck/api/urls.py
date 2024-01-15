@@ -18,7 +18,7 @@ urlpatterns = [
     path('student/<int:student_pk>/', StudentDetail.as_view()),
     path('class/<int:class_pk>/tests/', TestList.as_view()),
     path('test/<int:test_pk>/', TestDetail.as_view()),
-    path('test/<int:test_pk>/patterns', PatternList.as_view()),
+    path('test/<int:test_pk>/patterns/', PatternList.as_view()),
     path('pattern/<int:patt_pk>', PatternDetail.as_view()),
     path('test/<int:test_pk>/blanks/', BlankList.as_view()),
     path('blank/<int:pk>/', BlankDetail.as_view()),
