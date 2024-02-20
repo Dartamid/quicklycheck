@@ -3,3 +3,4 @@
 /quicklycheck/static/admin/
 **/migrations/
 **/static/
+**/media/
