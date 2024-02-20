@@ -1,12 +1,13 @@
 from django.contrib.auth import password_validation
 from rest_framework import serializers
-from checker.models import Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
+from checker.models import Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank, Assessment
 from django.contrib.auth.password_validation import (
     MinimumLengthValidator, CommonPasswordValidator,
     NumericPasswordValidator, UserAttributeSimilarityValidator
 )
 from users.models import User
 from django.core import exceptions
+
 
 password_validators = [
     MinimumLengthValidator, NumericPasswordValidator,
@@ -49,6 +50,12 @@ class PatternSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pattern
         fields = ['pk', 'test', 'num', 'pattern']
+
+
+class AssessmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assessment
+        fields = ['pk', 'name', 'min_pr', 'max_pr']
 
 
 class UserSerializer(serializers.ModelSerializer):

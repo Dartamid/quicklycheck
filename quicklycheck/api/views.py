@@ -8,10 +8,10 @@ from rest_framework.views import APIView
 from .serializers import (
     ClassSerializer, StudentSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
-    ChangePasswordSerializer, TempBlankSerializer, StudentDetailSerializer
+    ChangePasswordSerializer, TempBlankSerializer, StudentDetailSerializer, AssessmentSerializer
 )
 from checker.models import (
-    Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
+    Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank, Assessment
 )
 from checker.utils import checker
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -134,6 +134,59 @@ class PatternDetail(APIView):
     def delete(self, request, patt_pk):
         pattern = self.get_object(patt_pk)
         pattern.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AssessmentList(APIView):
+    serializer = AssessmentSerializer
+    permissions = (IsAuthenticated, IsTeacher)
+
+    def get(self, request, test_pk):
+        user = request.user
+        assessments = get_object_or_404(Test, pk=test_pk, teacher=user).assessments
+        serialized = self.serializer(assessments, many=True)
+        return Response(serialized.data)
+
+    def post(self, request, test_pk):
+        test = get_object_or_404(Test, pk=test_pk, teacher=request.user)
+        data = request.data.copy()
+        data['test'] = test.pk
+        serialized = self.serializer(data=data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data, status=status.HTTP_201_CREATED)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AssessmentDetail(APIView):
+    model = Assessment
+    serializer = AssessmentSerializer
+    permissions = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return self.model.objects.all()
+
+    def get_object(self, pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj.test)
+        return obj
+
+    def get(self, request, pk):
+        assessments = self.get_object(pk)
+        serialized = self.serializer(assessments)
+        return Response(serialized.data)
+
+    def put(self, request, pk):
+        assessment = self.get_object(pk)
+        serialized = self.serializer(assessment, data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, patt_pk):
+        assessment = self.get_object(patt_pk)
+        assessment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

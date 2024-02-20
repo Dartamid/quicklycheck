@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Class, Test, Blank, Pattern, Student
+from .models import Class, Test, Blank, Pattern, Student, Assessment
 
 
 # Register your models here.
@@ -25,5 +25,10 @@ class PatternAdmin(admin.ModelAdmin):
 
 @admin.register(Blank)
 class BlankAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Assessment)
+class AssessmentAdmin(admin.ModelAdmin):
     pass
 
