@@ -17,9 +17,12 @@ from checker.utils import checker
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from io import BytesIO
 from PIL import Image
+from pillow_heif import register_heif_opener
 from checker.models import User
 from users.forms import CustomUserCreationForm
 
+
+register_heif_opener()
 
 class IsTeacher(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -267,7 +270,8 @@ class BlankList(APIView):
         images = request.FILES.getlist('images')
         serialized_list = []
         for image in images:
-            results = checker(image.temporary_file_path())
+            pil_image = Image.open(image.temporary_file_path())
+            results = checker(pil_image)
             new_image = Image.fromarray(results.img)
             bytes_io = BytesIO()
             new_image.save(bytes_io, format='JPEG')
@@ -279,7 +283,7 @@ class BlankList(APIView):
                 author = test.grade.students.all()[int(results.id) - 1]
             else:
                 author = test.grade.students.all()[1]
-            if int(results.var) in [item.num for item in test.patterns.all()]:
+            if results.var in [str(item.num) for item in test.patterns.all()]:
                 var = int(results.var)
             else:
                 if len(test.patterns.all()) > 0:
@@ -487,7 +491,7 @@ class ChangePasswordView(UpdateAPIView):
 
         if serializer.is_valid():
             if not self.object.check_password(serializer.data.get("old_password")):
-                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "Введен не правильный пароль"}, status=status.HTTP_400_BAD_REQUEST)
             self.object.set_password(serializer.data.get("new_password"))
             self.object.save()
             response = {

@@ -13,9 +13,10 @@ def display(img, frame_name="OpenCV Image"):
 
 
 class Blank:
-    def __init__(self, file_path):
-        self.file_path = file_path
-        self.img = cv2.imread(file_path)
+    def __init__(self, pillow_image):
+        self.file_path = pillow_image
+        open_cv_image = np.array(pillow_image)
+        self.img = open_cv_image[:, :, ::-1].copy()
         self.centers = self.getting_boxes()
         self.ratio = 0.74
         self.ver_ratio = None
@@ -33,8 +34,8 @@ class Blank:
             threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         i = 0
-        min_area = 1000
-        max_area = 100000
+        min_area = 2000
+        max_area = 1000000
 
         for contour in contours:
 
@@ -213,7 +214,7 @@ class Blank:
         return self
 
 
-def checker(file):
-    blank = Blank(file)
+def checker(pil_image):
+    blank = Blank(pil_image)
     blank.check_data()
     return blank
