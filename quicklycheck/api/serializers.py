@@ -19,28 +19,36 @@ class ClassSerializer(serializers.ModelSerializer):
         fields = ['pk', 'number', 'letter', 'created_date']
 
 
-class StudentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
-        fields = ['pk', 'name', 'grade']
-
-
 class TestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
         fields = ['pk', 'name', 'grade']
 
 
-class PatternSerializer(serializers.ModelSerializer):
+class StudentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Pattern
-        fields = ['pk', 'test', 'num', 'pattern']
+        model = Student
+        fields = ['pk', 'name', 'grade']
 
 
 class BlankSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blank
         fields = ['pk', 'test', 'author', 'image', 'id_blank', 'var', 'answers']
+
+
+class StudentDetailSerializer(serializers.ModelSerializer):
+    works = BlankSerializer(many=True, source='works.all')
+
+    class Meta:
+        model = Student
+        fields = ['pk', 'name', 'grade', 'works']
+
+
+class PatternSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pattern
+        fields = ['pk', 'test', 'num', 'pattern']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -87,4 +95,3 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError(errors)
 
         return super(ChangePasswordSerializer, self).validate(data)
-

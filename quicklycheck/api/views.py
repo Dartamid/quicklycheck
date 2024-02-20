@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from .serializers import (
     ClassSerializer, StudentSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
-    ChangePasswordSerializer, TempBlankSerializer
+    ChangePasswordSerializer, TempBlankSerializer, StudentDetailSerializer
 )
 from checker.models import (
     Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
@@ -171,12 +171,13 @@ class StudentDetail(APIView):
 
     def get(self, request, student_pk):
         student = self.get_object(student_pk)
-        serialized = StudentSerializer(student)
+        serialized = StudentDetailSerializer(student)
         return Response(serialized.data)
 
     def put(self, request, student_pk):
         student = self.get_object(student_pk)
         serialized = StudentSerializer(student, data=request.data)
+        student_tests = Test.objects.filter(author=student)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
