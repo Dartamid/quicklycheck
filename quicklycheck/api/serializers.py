@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import (
     NumericPasswordValidator, UserAttributeSimilarityValidator
 )
 from users.models import User
+from users.exceptions import CustomValidationError
 from django.core import exceptions
 
 
@@ -91,14 +92,14 @@ class ChangePasswordSerializer(serializers.Serializer):
     )
 
     def validate(self, data):
-        errors = dict()
+        error = {}
         password = data.get('new_password')
         try:
             password_validation.validate_password(password=password)
         except exceptions.ValidationError as e:
-            errors['detail'] = list(e.messages)
+            error['detail'] = e.messages[0]
 
-        if errors:
-            raise serializers.ValidationError(errors)
+        if error:
+            raise CustomValidationError(detail=error)
 
         return super(ChangePasswordSerializer, self).validate(data)

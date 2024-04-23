@@ -10,7 +10,8 @@ User = get_user_model()
 class UsersTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username='HasNoName'
+            username='HasNoName',
+            password='GKMo83Kf_y'
         )
         self.user_admin = User.objects.create_user(
             username='AdminUser',
@@ -154,4 +155,28 @@ class UsersTests(APITestCase):
             'Введённый пароль состоит только из цифр.'
         )
 
+    def test_change_user_password(self):
+        url = reverse('password_change')
+        response = self.authorized_client.put(
+            url,
+            format='json',
+            data={
+                'new_password': 'GKMo84Kf_y',
+                'old_password': 'GKMo83Kf_y',
+            }
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, 'Установлен новый пароль!')
 
+    def test_change_old_password_with_wrong(self):
+        url = reverse('password_change')
+        response = self.authorized_client.put(
+            url,
+            format='json',
+            data={
+                'new_password': 'GKMo83Kf_y',
+                'old_password': 'GKMo82Kf_y',
+            }
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['detail'], 'Текущий пароль введен неверно!')

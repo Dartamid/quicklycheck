@@ -585,8 +585,9 @@ class TempBlankDetail(APIView):
 
 
 class ChangePasswordView(UpdateAPIView):
-    serializer_class = ChangePasswordSerializer
     model = User
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated,]
 
     def get_object(self, queryset=None):
         obj = self.request.user
@@ -598,16 +599,10 @@ class ChangePasswordView(UpdateAPIView):
 
         if serialized.is_valid():
             if not obj.check_password(serialized.data.get("old_password")):
-                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": 'Текущий пароль введен неверно!'}, status=status.HTTP_400_BAD_REQUEST)
             obj.set_password(serialized.data.get("new_password"))
             obj.save()
-            response = {
-                'status': 'success',
-                'code': status.HTTP_200_OK,
-                'message': 'Password updated successfully',
-                'data': []
-            }
 
-            return Response(response)
+            return Response('Установлен новый пароль!', status=status.HTTP_200_OK)
 
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
