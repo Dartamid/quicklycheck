@@ -1,5 +1,5 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import status, permissions
 from rest_framework.generics import UpdateAPIView
@@ -429,7 +429,14 @@ class CreateUserView(CreateAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = CreateUserSerializer
 
-    # def post(self, request):
+    def post(self, request, *args, **kwargs):
+        self.create(request, *args, **kwargs)
+        return Response(
+            data={'detail': 'Успешная регистрация пользователя!'},
+            status=status.HTTP_201_CREATED,
+        )
+
+        # def post(self, request):
     #
     #     form = self.creation_form(request.data)
     #

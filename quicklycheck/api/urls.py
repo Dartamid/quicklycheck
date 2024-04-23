@@ -4,7 +4,7 @@ from .views import (
     ClassList, ClassDetail, PatternList,
     PatternDetail, StudentList, StudentDetail,
     BlankList, BlankDetail, UserList, TestList, TestDetail, TempTestList, TempPatternList, TempBlankList,
-    TempPatternDetail, TempBlankDetail, ChangePasswordView, AssessmentList, AssessmentDetail
+    TempPatternDetail, TempBlankDetail, ChangePasswordView, AssessmentList, AssessmentDetail, CreateUserView
 )
 
 urls_auth = [
@@ -38,6 +38,7 @@ urls_test = [
 
 urls_users = [
     path('users/', UserList.as_view(), name='user_list'),
+    path('registration/', CreateUserView.as_view(), name='register'),
     path('user/password_change/', ChangePasswordView.as_view(), name='password_change'),
 ]
 
@@ -55,6 +56,7 @@ urls_blanks = [
     path('test/<int:test_pk>/blanks/', BlankList.as_view(), name='blank_list'),
     path('blank/<int:pk>/', BlankDetail.as_view(), name='blank_detail'),
 ]
+
 
 urls_list = [
     urls_auth, urls_users, urls_temp,
