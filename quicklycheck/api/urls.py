@@ -7,27 +7,61 @@ from .views import (
     TempPatternDetail, TempBlankDetail, ChangePasswordView, AssessmentList, AssessmentDetail
 )
 
-urlpatterns = [
+urls_auth = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('auth/', include('rest_framework.urls')),
-    path('classes/', ClassList.as_view()),
-    path('class/<int:pk>/', ClassDetail.as_view()),
-    path('class/<int:class_pk>/students/', StudentList.as_view()),
-    path('student/<int:student_pk>/', StudentDetail.as_view()),
-    path('class/<int:class_pk>/tests/', TestList.as_view()),
-    path('test/<int:test_pk>/', TestDetail.as_view()),
-    path('test/<int:test_pk>/patterns/', PatternList.as_view()),
-    path('pattern/<int:patt_pk>', PatternDetail.as_view()),
-    path('test/<int:test_pk>/assessment/', AssessmentList.as_view()),
-    path('assessment/<int:pk>/', AssessmentDetail.as_view()),
-    path('test/<int:test_pk>/blanks/', BlankList.as_view()),
-    path('blank/<int:pk>/', BlankDetail.as_view()),
-    path('users/', UserList.as_view()),
-    path('user/password_change/', ChangePasswordView.as_view(), name='password_change'),
-    path('temp/tests/', TempTestList.as_view()),
-    path('temp/test/<int:test_pk>/patterns/', TempPatternList.as_view()),
-    path('temp/pattern/<int:patt_pk>/', TempPatternDetail.as_view()),
-    path('temp/test/<int:test_pk>/blanks/', TempBlankList.as_view()),
-    path('temp/blank/<int:pk>/', TempBlankDetail.as_view())
+    # path('auth/', include('rest_framework.urls')),
 ]
+
+urls_temp = [
+    path('temp/tests/', TempTestList.as_view(), name='temp_list'),
+    path('temp/test/<int:test_pk>/patterns/', TempPatternList.as_view(), name='temp_pattern_list'),
+    path('temp/pattern/<int:patt_pk>/', TempPatternDetail.as_view(), name='temp_pattern_detail'),
+    path('temp/test/<int:test_pk>/blanks/', TempBlankList.as_view(), name='temp_blank_list'),
+    path('temp/blank/<int:pk>/', TempBlankDetail.as_view(), name='temp_blank_detail')
+]
+
+urls_class = [
+    path('classes/', ClassList.as_view(), name='class_list'),
+    path('class/<int:pk>/', ClassDetail.as_view(), name='class_detail'),
+]
+
+urls_students = [
+    path('class/<int:class_pk>/students/', StudentList.as_view(), name='student_list'),
+    path('student/<int:student_pk>/', StudentDetail.as_view(), name='student_detail'),
+]
+
+urls_test = [
+    path('class/<int:class_pk>/tests/', TestList.as_view(), name='test_list'),
+    path('test/<int:test_pk>/', TestDetail.as_view(), name='test_detail'),
+]
+
+urls_users = [
+    path('users/', UserList.as_view(), name='user_list'),
+    path('user/password_change/', ChangePasswordView.as_view(), name='password_change'),
+]
+
+urls_patterns = [
+    path('test/<int:test_pk>/patterns/', PatternList.as_view(), name='pattern_list'),
+    path('pattern/<int:patt_pk>', PatternDetail.as_view(), name='pattern_detail'),
+]
+
+urls_assessment = [
+    path('test/<int:test_pk>/assessment/', AssessmentList.as_view(), name='assessment_list'),
+    path('assessment/<int:pk>/', AssessmentDetail.as_view(), name='assessment_detail'),
+]
+
+urls_blanks = [
+    path('test/<int:test_pk>/blanks/', BlankList.as_view(), name='blank_list'),
+    path('blank/<int:pk>/', BlankDetail.as_view(), name='blank_detail'),
+]
+
+urls_list = [
+    urls_auth, urls_users, urls_temp,
+    urls_test, urls_patterns, urls_assessment,
+    urls_class, urls_blanks, urls_students,
+]
+urlpatterns = []
+
+for inner_urls in urls_list:
+    urlpatterns.extend(inner_urls)

@@ -1,28 +1,25 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from rest_framework import status, permissions
 from rest_framework.generics import UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import (
-    ClassSerializer, StudentSerializer, TestSerializer,
+    AssessmentSerializer, ClassSerializer, StudentSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
-    ChangePasswordSerializer, TempBlankSerializer, StudentDetailSerializer, AssessmentSerializer
+    ChangePasswordSerializer, TempBlankSerializer
 )
 from checker.models import (
-    Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank, Assessment
+    Assessment, Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
 )
 from checker.utils import checker
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from io import BytesIO
 from PIL import Image
-from pillow_heif import register_heif_opener
 from checker.models import User
 from users.forms import CustomUserCreationForm
 
-
-register_heif_opener()
 
 class IsTeacher(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -31,6 +28,7 @@ class IsTeacher(permissions.BasePermission):
 
 
 class ClassList(APIView):
+    model = Class
     serializer_class = ClassSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -41,13 +39,13 @@ class ClassList(APIView):
 
     def get(self, request):
         user = request.user
-        classes = Class.objects.filter(teacher=user)
+        classes = self.model.objects.filter(teacher=user)
         serialized = ClassSerializer(classes, many=True)
 
         return Response(serialized.data)
 
     def post(self, request):
-        serialized = ClassSerializer(data=request.data)
+        serialized = self.serializer_class(data=request.data)
         if serialized.is_valid():
             serialized.save(teacher=request.user)
             return Response(serialized.data, status=status.HTTP_201_CREATED)
@@ -56,10 +54,12 @@ class ClassList(APIView):
 
 
 class ClassDetail(APIView):
+    model = Class
+    serializer = ClassSerializer
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
-        return Class.objects.all()
+        return self.model.objects.all()
 
     def get_object(self, pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
@@ -68,7 +68,7 @@ class ClassDetail(APIView):
 
     def get(self, request, pk):
         inst = self.get_object(pk)
-        serialized = ClassSerializer(inst)
+        serialized = self.serializer(inst)
         return Response(serialized.data)
 
     def put(self, request, pk):
@@ -86,65 +86,13 @@ class ClassDetail(APIView):
 
 
 class PatternList(APIView):
-    serializer_class = PatternSerializer
+    serializer = PatternSerializer
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, test_pk):
         user = request.user
         patterns = get_object_or_404(Test, pk=test_pk, teacher=user).patterns
-        serialized = PatternSerializer(patterns, many=True)
-        return Response(serialized.data)
-
-    def post(self, request, test_pk):
-        test = get_object_or_404(Test, pk=test_pk, teacher=request.user)
-        data = request.data.copy()
-        data['test'] = test.pk
-        serialized = PatternSerializer(data=data)
-        if serialized.is_valid():
-            serialized.save()
-            return Response(serialized.data, status=status.HTTP_201_CREATED)
-        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class PatternDetail(APIView):
-    serializer = PatternSerializer
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def get_queryset(self):
-        return Pattern.objects.all()
-
-    def get_object(self, patt_pk):
-        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["patt_pk"])
-        self.check_object_permissions(self.request, obj.test)
-        return obj
-
-    def get(self, request, patt_pk):
-        pattern = self.get_object(patt_pk)
-        serialized = PatternSerializer(pattern)
-        return Response(serialized.data)
-
-    def put(self, request, patt_pk):
-        pattern = self.get_object(patt_pk)
-        serialized = PatternSerializer(pattern, data=request.data)
-        if serialized.is_valid():
-            serialized.save()
-            return Response(serialized.data)
-        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, patt_pk):
-        pattern = self.get_object(patt_pk)
-        pattern.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class AssessmentList(APIView):
-    serializer = AssessmentSerializer
-    permissions = (IsAuthenticated, IsTeacher)
-
-    def get(self, request, test_pk):
-        user = request.user
-        assessments = get_object_or_404(Test, pk=test_pk, teacher=user).assessments
-        serialized = self.serializer(assessments, many=True)
+        serialized = self.serializer(patterns, many=True)
         return Response(serialized.data)
 
     def post(self, request, test_pk):
@@ -158,53 +106,54 @@ class AssessmentList(APIView):
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AssessmentDetail(APIView):
-    model = Assessment
-    serializer = AssessmentSerializer
-    permissions = (IsAuthenticated, IsTeacher)
+class PatternDetail(APIView):
+    model = Pattern
+    serializer = PatternSerializer
+    permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
         return self.model.objects.all()
 
-    def get_object(self, pk):
-        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+    def get_object(self, patt_pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["patt_pk"])
         self.check_object_permissions(self.request, obj.test)
         return obj
 
-    def get(self, request, pk):
-        assessments = self.get_object(pk)
-        serialized = self.serializer(assessments)
+    def get(self, request, patt_pk):
+        pattern = self.get_object(patt_pk)
+        serialized = self.serializer(pattern)
         return Response(serialized.data)
 
-    def put(self, request, pk):
-        assessment = self.get_object(pk)
-        serialized = self.serializer(assessment, data=request.data)
+    def put(self, request, patt_pk):
+        pattern = self.get_object(patt_pk)
+        serialized = self.serializer(pattern, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, patt_pk):
-        assessment = self.get_object(patt_pk)
-        assessment.delete()
+        pattern = self.get_object(patt_pk)
+        pattern.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class StudentList(APIView):
-    serializer_class = StudentSerializer
+    model = Student
+    serializer = StudentSerializer
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, class_pk):
         user = request.user
         students = get_object_or_404(Class, pk=class_pk, teacher=user).students
-        serialized = StudentSerializer(students, many=True)
+        serialized = self.serializer(students, many=True)
         return Response(serialized.data)
 
     def post(self, request, class_pk):
         grade = get_object_or_404(Class, pk=class_pk, teacher=request.user)
         data = request.data.copy()
         data['grade'] = grade.pk
-        serialized = StudentSerializer(data=data)
+        serialized = self.serializer(data=data)
         if serialized.is_valid():
             serialized.save(teacher=request.user)
             return Response(serialized.data, status=status.HTTP_201_CREATED)
@@ -212,10 +161,11 @@ class StudentList(APIView):
 
 
 class StudentDetail(APIView):
+    model = Student
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
-        return Student.objects.all()
+        return self.model.objects.all()
 
     def get_object(self, student_pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["student_pk"])
@@ -224,13 +174,12 @@ class StudentDetail(APIView):
 
     def get(self, request, student_pk):
         student = self.get_object(student_pk)
-        serialized = StudentDetailSerializer(student)
+        serialized = StudentSerializer(student)
         return Response(serialized.data)
 
     def put(self, request, student_pk):
         student = self.get_object(student_pk)
         serialized = StudentSerializer(student, data=request.data)
-        student_tests = Test.objects.filter(author=student)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
@@ -243,11 +192,12 @@ class StudentDetail(APIView):
 
 
 class TestList(APIView):
-    serializer_class = TestSerializer
+    model = Class
+    serializer = TestSerializer
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
-        return Class.objects.all()
+        return self.model.objects.all()
 
     def get_object(self, class_pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["class_pk"])
@@ -257,14 +207,14 @@ class TestList(APIView):
     def get(self, request, class_pk):
         grade = self.get_object(class_pk)
         tests = grade.tests
-        serialized = TestSerializer(tests, many=True)
+        serialized = self.serializer(tests, many=True)
         return Response(serialized.data)
 
     def post(self, request, class_pk):
         data = request.data.copy()
         data['teacher'] = request.user
         data['grade'] = self.get_object(class_pk).pk
-        serializer = TestSerializer(data=data)
+        serializer = self.serializer(data=data)
         if serializer.is_valid():
             serializer.save(teacher=request.user)
             return Response(serializer.data, status.HTTP_201_CREATED)
@@ -272,11 +222,12 @@ class TestList(APIView):
 
 
 class TestDetail(APIView):
+    model = Test
     serializer = TestSerializer
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
-        return Test.objects.all()
+        return self.model.objects.all()
 
     def get_object(self, test_pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["test_pk"])
@@ -285,12 +236,12 @@ class TestDetail(APIView):
 
     def get(self, request, test_pk):
         test = self.get_object(test_pk)
-        serialized = TestSerializer(test)
+        serialized = self.serializer(test)
         return Response(serialized.data)
 
     def put(self, request, test_pk):
         test = self.get_object(test_pk)
-        serialized = TestSerializer(test, data=request.data)
+        serialized = self.serializer(test, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
@@ -302,12 +253,74 @@ class TestDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class BlankList(APIView):
-    serializer_class = BlankSerializer
+class AssessmentList(APIView):
+    model = Assessment
+    parent_model = Test
+    serializer = AssessmentSerializer
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
-        return Test.objects.all()
+        return self.parent_model.objects.all()
+
+    def get_object(self, test_pk):
+        obj = get_object_or_404(self.get_queryset(), pk=test_pk)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def get(self, request, test_pk):
+        assessments = self.get_object(test_pk).assessments
+        serialized = self.serializer(assessments, many=True)
+        return Response(serialized.data)
+
+    def post(self, request, test_pk):
+        data = request.data.copy()
+        data['test_pk'] = test_pk
+        serializer = self.serializer(data=data)
+        if serializer.is_valid():
+            serializer.save(teacher=request.user)
+            return Response(serializer.data, status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AssessmentDetail(APIView):
+    model = Assessment
+    serializer = AssessmentSerializer
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return self.model.objects.all()
+
+    def get_object(self, pk):
+        obj = get_object_or_404(self.get_queryset(), pk=pk)
+        self.check_object_permissions(self.request, obj.test)
+        return obj
+
+    def get(self, request, pk):
+        assessment = self.get_object(pk)
+        serialized = self.serializer(assessment)
+        return Response(serialized.data)
+
+    def put(self, request, pk):
+        assessment = self.get_object(pk)
+        serialized = self.serializer(assessment, data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, test_pk):
+        assessment = self.get_object(test_pk)
+        assessment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BlankList(APIView):
+    model = Test
+    serializer = BlankSerializer
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return self.model.objects.all()
 
     def get_object(self, test_pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["test_pk"])
@@ -316,7 +329,7 @@ class BlankList(APIView):
 
     def get(self, request, test_pk):
         blanks = self.get_object(test_pk).blanks
-        serializer = BlankSerializer(blanks, many=True)
+        serializer = self.serializer(blanks, many=True)
         return Response(serializer.data)
 
     def post(self, request, test_pk):
@@ -324,8 +337,7 @@ class BlankList(APIView):
         images = request.FILES.getlist('images')
         serialized_list = []
         for image in images:
-            pil_image = Image.open(image.temporary_file_path())
-            results = checker(pil_image)
+            results = checker(image.temporary_file_path())
             new_image = Image.fromarray(results.img)
             bytes_io = BytesIO()
             new_image.save(bytes_io, format='JPEG')
@@ -337,7 +349,7 @@ class BlankList(APIView):
                 author = test.grade.students.all()[int(results.id) - 1]
             else:
                 author = test.grade.students.all()[1]
-            if results.var in [str(item.num) for item in test.patterns.all()]:
+            if int(results.var) in [item.num for item in test.patterns.all()]:
                 var = int(results.var)
             else:
                 if len(test.patterns.all()) > 0:
@@ -352,16 +364,17 @@ class BlankList(APIView):
                 answers=str(','.join(results.answers.values())),
                 image=file
             )
-            serialized_list.append(BlankSerializer(blank).data)
+            serialized_list.append(self.serializer(blank).data)
         return Response(serialized_list, status=status.HTTP_201_CREATED)
 
 
 class BlankDetail(APIView):
-    serializer_class = BlankSerializer
+    model = Blank
+    serializer = BlankSerializer
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
-        return Blank.objects.all()
+        return self.model.objects.all()
 
     def get_object(self, pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
@@ -370,12 +383,12 @@ class BlankDetail(APIView):
 
     def get(self, request, pk):
         blank = self.get_object(pk)
-        serialized = BlankSerializer(blank)
+        serialized = self.serializer(blank)
         return Response(serialized.data)
 
     def put(self, request, pk):
         blank = self.get_object(pk)
-        serialized = BlankSerializer(blank, data=request.data)
+        serialized = self.serializer(blank, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
@@ -388,18 +401,25 @@ class BlankDetail(APIView):
 
 
 class UserList(APIView):
+    model = User
+    serializer = UserSerializer
+    creation_form = CustomUserCreationForm
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        if request.user.is_admin:
-            users = User.objects.all()
-            serializer = UserSerializer(users, many=True)
-            return Response(serializer)
+        if request.user.is_staff or request.user.is_superuser:
+            users = self.model.objects.all()
+            serialized = self.serializer(users, many=True)
+            return Response(serialized.data, status=status.HTTP_200_OK)
         else:
-            return HttpResponseForbidden()
+            return Response(
+                status=status.HTTP_403_FORBIDDEN,
+                data={'detail': 'У вас недостаточно прав для данного действия!'}
+            )
 
     def post(self, request):
 
-        form = CustomUserCreationForm(request.data)
+        form = self.creation_form(request.data)
 
         if form.is_valid():
             email = form.cleaned_data.get('email')
@@ -409,54 +429,62 @@ class UserList(APIView):
                 user = User.objects.create_user(username, email, password)
                 user.save()
                 return Response(data={'detail': 'Успешная регистрация пользователя'}, status=status.HTTP_201_CREATED)
-            return Response(data={'detail': 'Данный Email уже используется в системе!'}, status=status.HTTP_400_BAD_REQUEST, exception=True)
+            return Response(
+                data={'detail': 'Данный Email уже используется в системе!'},
+                status=status.HTTP_400_BAD_REQUEST, exception=True
+            )
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TempTestList(APIView):
-    serializer_class = TempTestSerializer
+    model = TempTest
+    serializer = TempTestSerializer
 
     def post(self, request):
-        test = TempTest.objects.create()
-        serializer = TempTestSerializer(test)
+        test = self.model.objects.create()
+        serializer = self.serializer(test)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class TempPatternList(APIView):
+    model = TempPattern
+    serializer = TempPatternSerializer
 
     def get(self, request, test_pk):
         test = get_object_or_404(TempTest, pk=test_pk)
-        tests = TempPattern.objects.filter(test=test)
-        serializer = TempPatternSerializer(tests, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        tests = self.model.objects.filter(test=test)
+        serialized = self.serializer(tests, many=True)
+        return Response(serialized.data, status=status.HTTP_200_OK)
 
     def post(self, request, test_pk):
         test = get_object_or_404(TempTest, pk=test_pk)
         data = request.data.copy()
         data['test'] = test.pk
-        serializer = TempPatternSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serialized = self.serializer(data=data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data, status=status.HTTP_201_CREATED)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TempPatternDetail(APIView):
-    @staticmethod
-    def get_object(patt_pk):
+    model = TempPattern
+    serializer = TempPatternSerializer
+
+    def get_object(self, patt_pk):
         try:
-            return TempPattern.objects.get(pk=patt_pk)
-        except TempPattern.DoesNotExist:
+            return self.model.objects.get(pk=patt_pk)
+        except self.model.DoesNotExist:
             raise Http404
 
     def get(self, request, patt_pk):
         pattern = self.get_object(patt_pk)
-        serialized = TempPatternSerializer(pattern)
+        serialized = self.serializer(pattern)
         return Response(serialized.data, status=status.HTTP_200_OK)
 
     def put(self, request, patt_pk):
         pattern = self.get_object(patt_pk)
-        serialized = TempPatternSerializer(pattern, data=request.data)
+        serialized = self.serializer(pattern, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data, status=status.HTTP_200_OK)
@@ -469,13 +497,17 @@ class TempPatternDetail(APIView):
 
 
 class TempBlankList(APIView):
+    model = TempBlank
+    parent_model = TempTest
+    serializer = TempBlankSerializer
+
     def get(self, request, test_pk):
-        blanks = get_object_or_404(TempTest, pk=test_pk).blanks
-        serializer = TempBlankSerializer(blanks, many=True)
-        return Response(serializer.data)
+        blanks = get_object_or_404(self.parent_model, pk=test_pk).blanks
+        serialized = self.serializer(blanks, many=True)
+        return Response(serialized.data)
 
     def post(self, request, test_pk):
-        test = get_object_or_404(TempTest, pk=test_pk)
+        test = get_object_or_404(self.parent_model, pk=test_pk)
         images = request.FILES.getlist('images')
         serialized_list = []
         for image in images:
@@ -494,33 +526,35 @@ class TempBlankList(APIView):
                     var = test.patterns.all()[0].num
                 else:
                     return Response('У данного теста не найдены варианты!', status=status.HTTP_400_BAD_REQUEST)
-            blank = TempBlank.objects.create(
+            blank = self.model.objects.create(
                 test=test,
                 var=var,
                 id_blank=str(results.id),
                 answers=str(','.join(results.answers.values())),
                 image=file
             )
-            serialized_list.append(TempBlankSerializer(blank).data)
+            serialized_list.append(self.serializer(blank).data)
         return Response(serialized_list)
 
 
 class TempBlankDetail(APIView):
+    model = TempBlank
+    serializer = TempBlankSerializer
 
     def get_blank(self, pk):
         try:
-            return TempBlank.objects.get(pk=pk)
-        except TempBlank.DoesNotExist:
+            return self.model.objects.get(pk=pk)
+        except self.model.DoesNotExist:
             raise Http404
 
     def get(self, request, pk):
         blank = self.get_blank(pk)
-        serialized = TempBlankSerializer(blank)
+        serialized = self.serializer(blank)
         return Response(serialized.data)
 
     def put(self, request, pk):
         blank = self.get_blank(pk)
-        serialized = TempBlankSerializer(blank, data=request.data)
+        serialized = self.serializer(blank, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
@@ -540,14 +574,14 @@ class ChangePasswordView(UpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        serializer = self.get_serializer(data=request.data)
+        obj = self.get_object()
+        serialized = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
-            if not self.object.check_password(serializer.data.get("old_password")):
-                return Response({"detail": "Введен не правильный пароль"}, status=status.HTTP_400_BAD_REQUEST)
-            self.object.set_password(serializer.data.get("new_password"))
-            self.object.save()
+        if serialized.is_valid():
+            if not obj.check_password(serialized.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            obj.set_password(serialized.data.get("new_password"))
+            obj.save()
             response = {
                 'status': 'success',
                 'code': status.HTTP_200_OK,
@@ -557,4 +591,4 @@ class ChangePasswordView(UpdateAPIView):
 
             return Response(response)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

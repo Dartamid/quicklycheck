@@ -13,10 +13,9 @@ def display(img, frame_name="OpenCV Image"):
 
 
 class Blank:
-    def __init__(self, pillow_image):
-        self.file_path = pillow_image
-        open_cv_image = np.array(pillow_image)
-        self.img = open_cv_image[:, :, ::-1].copy()
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.img = cv2.imread(file_path)
         self.centers = self.getting_boxes()
         self.ratio = 0.74
         self.ver_ratio = None
@@ -34,8 +33,8 @@ class Blank:
             threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         i = 0
-        min_area = 2000
-        max_area = 1000000
+        min_area = 1000
+        max_area = 100000
 
         for contour in contours:
 
@@ -75,7 +74,7 @@ class Blank:
         sorted_points = sorted(points, key=lambda point: np.arctan2(point[0][1] - center[1], point[0][0] - center[0]))
 
         mark = 0
-        min_diff = 10**10
+        min_diff = 10 ** 10
         for i in range(len(sorted_points)):
             if min_diff > sum(sorted_points[i][1]):
                 mark = i
@@ -104,7 +103,7 @@ class Blank:
     def find_closest_values(cen):
         sorted_lst = sorted(
             cen,
-            key=lambda item: sum([abs(item[1]-i[1]) for i in cen]))
+            key=lambda item: sum([abs(item[1] - i[1]) for i in cen]))
         return [i[0] for i in sorted_lst[:5]]
 
     def get_perspective(self):
@@ -116,7 +115,7 @@ class Blank:
         ratio = self.ratio
         cardH = math.sqrt(
             (pts1[2][0] - pts1[1][0]) * (pts1[2][0] - pts1[1][0]) + (pts1[2][1] - pts1[1][1]) * (
-                        pts1[2][1] - pts1[1][1]))
+                    pts1[2][1] - pts1[1][1]))
         cardW = ratio * cardH
         pts2 = np.float32(
             [[pts1[0][0], pts1[0][1]], [pts1[0][0] + cardW, pts1[0][1]], [pts1[0][0] + cardW, pts1[0][1] + cardH],
@@ -131,8 +130,6 @@ class Blank:
         else:
             offsetSize = 500
 
-
-
         transformed = np.zeros((int(cardW + offsetSize), int(cardH + offsetSize)), dtype=np.uint8)
         dst = cv2.warpPerspective(img, M, transformed.shape)
 
@@ -141,10 +138,10 @@ class Blank:
         self.centers = self.getting_boxes()
         self.get_ratio()
         self.img = self.img[
-              self.centers[0][1] - round(67 * self.ver_ratio): self.centers[-2][1] + round(
-                  54 * self.ver_ratio),
-              self.centers[0][0] - round(68 * self.hor_ratio): self.centers[1][0] + round(
-                  68 * self.hor_ratio)]
+                   self.centers[0][1] - round(67 * self.ver_ratio): self.centers[-2][1] + round(
+                       54 * self.ver_ratio),
+                   self.centers[0][0] - round(68 * self.hor_ratio): self.centers[1][0] + round(
+                       68 * self.hor_ratio)]
 
         return self.img
 
@@ -187,7 +184,7 @@ class Blank:
         start = 10
         for i in range(1, 11):
             answer = self.check_line(img, [128, 861 + 35 * (i - 1)], 5, 40, 1)
-            correction = self.check_line(img, [335, 861   + 35 * (i - 1)], 5, 40, 1)
+            correction = self.check_line(img, [335, 861 + 35 * (i - 1)], 5, 40, 1)
             if correction == '':
                 self.answers[f'{start + i}'] = answer
             else:
@@ -214,7 +211,7 @@ class Blank:
         return self
 
 
-def checker(pil_image):
-    blank = Blank(pil_image)
+def checker(file):
+    blank = Blank(file)
     blank.check_data()
     return blank

@@ -87,4 +87,3 @@ class TempBlank(models.Model):
         upload_to='blanks/',
     )
     answers = models.CharField(max_length=254)
-

@@ -55,7 +55,7 @@ class PatternSerializer(serializers.ModelSerializer):
 class AssessmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessment
-        fields = ['pk', 'name', 'min_pr', 'max_pr']
+        fields = ['pk', 'name', 'color', 'min_pr', 'max_pr']
 
 
 class UserSerializer(serializers.ModelSerializer):
