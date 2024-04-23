@@ -5,6 +5,7 @@ from rest_framework import status, permissions
 from rest_framework.generics import UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import CreateAPIView
 from .serializers import (
     AssessmentSerializer, ClassSerializer, StudentSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
@@ -18,7 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 from io import BytesIO
 from PIL import Image
 from checker.models import User
-from users.forms import CustomUserCreationForm
+from users.serializers import CreateUserSerializer
 
 
 class IsTeacher(permissions.BasePermission):
@@ -403,37 +404,48 @@ class BlankDetail(APIView):
 class UserList(APIView):
     model = User
     serializer = UserSerializer
-    creation_form = CustomUserCreationForm
-    permission_classes = (IsAuthenticated,)
+    # creation_form = CustomUserCreationForm
 
     def get(self, request):
-        if request.user.is_staff or request.user.is_superuser:
-            users = self.model.objects.all()
-            serialized = self.serializer(users, many=True)
-            return Response(serialized.data, status=status.HTTP_200_OK)
+        if request.user.is_authenticated:
+            if request.user.is_staff or request.user.is_superuser:
+                users = self.model.objects.all()
+                serialized = self.serializer(users, many=True)
+                return Response(serialized.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    status=status.HTTP_403_FORBIDDEN,
+                    data={'detail': 'У вас недостаточно прав для данного действия!'}
+                )
         else:
             return Response(
-                status=status.HTTP_403_FORBIDDEN,
-                data={'detail': 'У вас недостаточно прав для данного действия!'}
+                status=status.HTTP_401_UNAUTHORIZED,
+                data={'detail': 'Вам необходимо авторизоваться для выполнения данного действия!'}
             )
 
-    def post(self, request):
 
-        form = self.creation_form(request.data)
+class CreateUserView(CreateAPIView):
+    model = User
+    permission_classes = [permissions.AllowAny]
+    serializer_class = CreateUserSerializer
 
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            if len(User.objects.filter(email=email)) == 0:
-                username = email.replace('@', '', 1)
-                password = form.cleaned_data.get('password1')
-                user = User.objects.create_user(username, email, password)
-                user.save()
-                return Response(data={'detail': 'Успешная регистрация пользователя'}, status=status.HTTP_201_CREATED)
-            return Response(
-                data={'detail': 'Данный Email уже используется в системе!'},
-                status=status.HTTP_400_BAD_REQUEST, exception=True
-            )
-        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def post(self, request):
+    #
+    #     form = self.creation_form(request.data)
+    #
+    #     if form.is_valid():
+    #         email = form.cleaned_data.get('email')
+    #         if len(User.objects.filter(email=email)) == 0:
+    #             username = email.replace('@', '', 1)
+    #             password = form.cleaned_data.get('password1')
+    #             user = User.objects.create_user(username, email, password)
+    #             user.save()
+    #             return Response(data={'detail': 'Успешная регистрация пользователя'}, status=status.HTTP_201_CREATED)
+    #         return Response(
+    #             data={'detail': 'Данный Email уже используется в системе!'},
+    #             status=status.HTTP_400_BAD_REQUEST, exception=True
+    #         )
+    #     return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TempTestList(APIView):
