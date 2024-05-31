@@ -7,13 +7,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from .serializers import (
-    AssessmentSerializer, ClassSerializer, StudentSerializer, TestSerializer,
+    AssessmentSerializer, ClassSerializer, StudentSerializer, StudentDetailSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
-    ChangePasswordSerializer, TempBlankSerializer
+    ChangePasswordSerializer, TempBlankSerializer, FeedbackSerializer
 )
 from checker.models import (
     Assessment, Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
 )
+from .models import Feedback
 from checker.utils import checker
 from rest_framework.permissions import IsAuthenticated
 from io import BytesIO
@@ -163,6 +164,7 @@ class StudentList(APIView):
 
 class StudentDetail(APIView):
     model = Student
+    serializer = StudentDetailSerializer
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
@@ -175,12 +177,12 @@ class StudentDetail(APIView):
 
     def get(self, request, student_pk):
         student = self.get_object(student_pk)
-        serialized = StudentSerializer(student)
+        serialized = self.serializer(student)
         return Response(serialized.data)
 
     def put(self, request, student_pk):
         student = self.get_object(student_pk)
-        serialized = StudentSerializer(student, data=request.data)
+        serialized = self.serializer(student, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
@@ -605,4 +607,20 @@ class ChangePasswordView(UpdateAPIView):
 
             return Response('Установлен новый пароль!', status=status.HTTP_200_OK)
 
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FeedBackView(APIView):
+    model = Feedback
+    serializer_class = FeedbackSerializer
+    permission_classes = [IsAuthenticated,]
+
+    def post(self, request):
+        data = request.data.copy()
+        blank = get_object_or_404(Blank, pk=data['blank'], teacher=request.user)
+        data['blank'] = blank
+        serialized = self.serializer(data=data)
+        if serialized.is_valid():
+            serialized.save(user=request.user)
+            return Response(serialized.data, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)

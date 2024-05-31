@@ -8,7 +8,7 @@ from .views import (
 )
 
 urls_auth = [
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/', TokenObtainPairView.as_view(), name='token'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('auth/', include('rest_framework.urls')),
 ]
@@ -36,6 +36,7 @@ urls_test = [
     path('test/<int:test_pk>/', TestDetail.as_view(), name='test_detail'),
 ]
 
+# Обернуто
 urls_users = [
     path('users/', UserList.as_view(), name='user_list'),
     path('registration/', CreateUserView.as_view(), name='register'),

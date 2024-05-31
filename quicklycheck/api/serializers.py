@@ -9,6 +9,7 @@ from users.models import User
 from users.exceptions import CustomValidationError
 from django.core import exceptions
 
+from api.models import Feedback
 
 password_validators = [
     MinimumLengthValidator, NumericPasswordValidator,
@@ -34,9 +35,11 @@ class StudentSerializer(serializers.ModelSerializer):
 
 
 class BlankSerializer(serializers.ModelSerializer):
+    testName = serializers.CharField(source='test.name', read_only=True)
+
     class Meta:
         model = Blank
-        fields = ['pk', 'test', 'author', 'image', 'id_blank', 'var', 'answers']
+        fields = ['pk', 'test', 'testName', 'author', 'image', 'id_blank', 'var', 'answers']
 
 
 class StudentDetailSerializer(serializers.ModelSerializer):
@@ -63,6 +66,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['pk', 'username']
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['pk', 'user', 'text', 'blank']
 
 
 class TempTestSerializer(serializers.ModelSerializer):
