@@ -69,12 +69,12 @@ if DEBUG:
 else:
     DATABASES = {
         "default": {
-            "ENGINE": os.environ.get("DB_ENGINE"),
-            "NAME": os.environ.get("DB_NAME"),
-            "USER": os.environ.get("POSTGRES_USER"),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-            "HOST": os.environ.get("DB_HOST"),
-            "PORT": os.environ.get("DB_PORT"),
+            "ENGINE": 'django.db.backends.postgresql',
+            "NAME": 'quicklycheck_db',
+            "USER": 'quicklycheck_admin',
+            "PASSWORD": 'Shavolmog3109',
+            "HOST": 'rc1a-l6gsvm8pt8mh4wtp.mdb.yandexcloud.net',
+            "PORT": '6432',
         }
     }
 
@@ -110,9 +110,9 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'users.User'
 
-# STATICFILES_DIRS = [
-#     BASE_DIR / "static",
-# ]
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 LOGIN_REDIRECT_URL = 'index'
 
