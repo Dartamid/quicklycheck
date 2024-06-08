@@ -5,6 +5,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
 from .exceptions import CustomValidationError
+from .models import Account
 
 User = get_user_model()
 
@@ -31,6 +32,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             username=validated_data['email'].replace('@', '').replace('.', ''),
             password=validated_data['password']
         )
+        account = Account.objects.create(user=user)
         return user
 
     def validate_email(self, email):

@@ -462,6 +462,7 @@ class CreateUserView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         self.create(request, *args, **kwargs)
+
         return Response(
             data={'detail': 'Успешная регистрация пользователя!'},
             status=status.HTTP_201_CREATED,
