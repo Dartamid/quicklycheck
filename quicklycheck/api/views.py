@@ -9,7 +9,7 @@ from rest_framework.generics import CreateAPIView
 from .serializers import (
     AssessmentSerializer, ClassSerializer, StudentSerializer, StudentDetailSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
-    ChangePasswordSerializer, TempBlankSerializer, FeedbackSerializer, ProfileSerializer
+    ChangePasswordSerializer, TempBlankSerializer, FeedbackSerializer, ProfileSerializer, AccountSerializer
 )
 from checker.models import (
     Assessment, Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
@@ -21,6 +21,8 @@ from io import BytesIO
 from PIL import Image
 from checker.models import User
 from users.serializers import CreateUserSerializer
+
+from users.models import Account
 
 
 class IsTeacher(permissions.BasePermission):
@@ -433,6 +435,24 @@ class ProfileView(APIView):
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         return Response(self.serializer(user).data, status=status.HTTP_200_OK)
+
+
+class ProfileEditView(APIView):
+    permission_classes = (IsAuthenticated,)
+    model = Account
+    serializer = AccountSerializer
+
+    def get_account(self, request):
+        user = get_object_or_404(self.model, user=request.user.id)
+        return user
+
+    def post(self, request):
+        account = self.get_account(request)
+        serialized = self.serializer(account, data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateUserView(CreateAPIView):

@@ -5,7 +5,7 @@ from .views import (
     PatternDetail, StudentList, StudentDetail,
     BlankList, BlankDetail, UserList, TestList, TestDetail, TempTestList, TempPatternList, TempBlankList,
     TempPatternDetail, TempBlankDetail, ChangePasswordView, AssessmentList, AssessmentDetail, CreateUserView,
-    ProfileView
+    ProfileView, ProfileEditView
 )
 
 urls_auth = [
@@ -41,6 +41,7 @@ urls_test = [
 urls_users = [
     path('users/', UserList.as_view(), name='user_list'),
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('profile/edit/', ProfileEditView.as_view(), name='edit_profile'),
     path('registration/', CreateUserView.as_view(), name='register'),
     path('user/password_change/', ChangePasswordView.as_view(), name='password_change'),
 ]
