@@ -4,7 +4,8 @@ from .views import (
     ClassList, ClassDetail, PatternList,
     PatternDetail, StudentList, StudentDetail,
     BlankList, BlankDetail, UserList, TestList, TestDetail, TempTestList, TempPatternList, TempBlankList,
-    TempPatternDetail, TempBlankDetail, ChangePasswordView, AssessmentList, AssessmentDetail, CreateUserView
+    TempPatternDetail, TempBlankDetail, ChangePasswordView, AssessmentList, AssessmentDetail, CreateUserView,
+    ProfileView
 )
 
 urls_auth = [
@@ -39,13 +40,14 @@ urls_test = [
 # Обернуто
 urls_users = [
     path('users/', UserList.as_view(), name='user_list'),
+    path('profile/', ProfileView.as_view(), name='profile'),
     path('registration/', CreateUserView.as_view(), name='register'),
     path('user/password_change/', ChangePasswordView.as_view(), name='password_change'),
 ]
 
 urls_patterns = [
     path('test/<int:test_pk>/patterns/', PatternList.as_view(), name='pattern_list'),
-    path('pattern/<int:patt_pk>', PatternDetail.as_view(), name='pattern_detail'),
+    path('pattern/<int:patt_pk>/', PatternDetail.as_view(), name='pattern_detail'),
 ]
 
 urls_assessment = [

@@ -9,7 +9,7 @@ from rest_framework.generics import CreateAPIView
 from .serializers import (
     AssessmentSerializer, ClassSerializer, StudentSerializer, StudentDetailSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
-    ChangePasswordSerializer, TempBlankSerializer, FeedbackSerializer
+    ChangePasswordSerializer, TempBlankSerializer, FeedbackSerializer, ProfileSerializer
 )
 from checker.models import (
     Assessment, Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
@@ -426,6 +426,15 @@ class UserList(APIView):
             )
 
 
+class ProfileView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer = ProfileSerializer
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        return Response(self.serializer(user).data, status=status.HTTP_200_OK)
+
+
 class CreateUserView(CreateAPIView):
     model = User
     permission_classes = [permissions.AllowAny]
@@ -463,8 +472,8 @@ class TempTestList(APIView):
 
     def post(self, request):
         test = self.model.objects.create()
-        serializer = self.serializer(test)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serialized = self.serializer(test)
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
 
 
 class TempPatternList(APIView):

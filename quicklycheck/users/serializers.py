@@ -42,8 +42,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
         if password is None or password == '':
             raise CustomValidationError(detail={'detail': 'Пароль обязательное поле!'})
         try:
-            password_er = validate_password(password, self)
-            return password_er
+            validate_password(password, self)
+            return password
         except ValidationError as e:
             message = e.messages[0]
             raise CustomValidationError(detail={'detail': message})

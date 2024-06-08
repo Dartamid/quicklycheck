@@ -5,7 +5,7 @@ from django.contrib.auth.password_validation import (
     MinimumLengthValidator, CommonPasswordValidator,
     NumericPasswordValidator, UserAttributeSimilarityValidator
 )
-from users.models import User
+from users.models import User, Account
 from users.exceptions import CustomValidationError
 from django.core import exceptions
 
@@ -43,7 +43,7 @@ class BlankSerializer(serializers.ModelSerializer):
 
 
 class StudentDetailSerializer(serializers.ModelSerializer):
-    works = BlankSerializer(many=True, source='works.all')
+    works = BlankSerializer(many=True, read_only=True, source='works.all')
 
     class Meta:
         model = Student
@@ -66,6 +66,20 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['pk', 'username']
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        exclude = ['user', 'id']
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    profile = AccountSerializer(read_only=True, source='account')
+
+    class Meta:
+        model = User
+        fields = ['pk', 'username', 'email', 'profile']
 
 
 class FeedbackSerializer(serializers.ModelSerializer):

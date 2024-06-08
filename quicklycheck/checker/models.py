@@ -49,7 +49,7 @@ class Blank(models.Model):
     test = models.ForeignKey('Test', on_delete=models.CASCADE, related_name='blanks')
     author = models.ForeignKey('Student', on_delete=models.CASCADE, related_name='works', blank=True, null=True)
     id_blank = models.CharField(max_length=2)
-    pattern = models.IntegerField()
+    var = models.IntegerField()
     image = models.ImageField(
         'Фотография бланка',
         upload_to='blanks/',
