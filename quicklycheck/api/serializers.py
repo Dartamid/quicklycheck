@@ -1,6 +1,7 @@
 from django.contrib.auth import password_validation
 from rest_framework import serializers
-from checker.models import Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank, Assessment
+from checker.models import (Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank, Assessment,
+                            InvalidBlank)
 from django.contrib.auth.password_validation import (
     MinimumLengthValidator, CommonPasswordValidator,
     NumericPasswordValidator, UserAttributeSimilarityValidator
@@ -10,6 +11,7 @@ from users.exceptions import CustomValidationError
 from django.core import exceptions
 
 from api.models import Feedback
+
 
 password_validators = [
     MinimumLengthValidator, NumericPasswordValidator,
@@ -40,6 +42,12 @@ class BlankSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blank
         fields = ['pk', 'test', 'testName', 'author', 'image', 'id_blank', 'var', 'answers']
+
+
+class InvalidBlankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InvalidBlank
+        fields = '__all__'
 
 
 class StudentDetailSerializer(serializers.ModelSerializer):

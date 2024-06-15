@@ -9,10 +9,11 @@ from rest_framework.generics import CreateAPIView
 from .serializers import (
     AssessmentSerializer, ClassSerializer, StudentSerializer, StudentDetailSerializer, TestSerializer,
     PatternSerializer, BlankSerializer, UserSerializer, TempTestSerializer, TempPatternSerializer,
-    ChangePasswordSerializer, TempBlankSerializer, FeedbackSerializer, ProfileSerializer, AccountSerializer
+    ChangePasswordSerializer, TempBlankSerializer, FeedbackSerializer, ProfileSerializer, AccountSerializer,
+    InvalidBlankSerializer
 )
 from checker.models import (
-    Assessment, Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank
+    Assessment, Class, Student, Test, Pattern, Blank, TempTest, TempPattern, TempBlank, InvalidBlank
 )
 from .models import Feedback
 from checker.utils import checker
@@ -319,6 +320,44 @@ class AssessmentDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class InvalidBlankList(APIView):
+    model = Test
+    serializer = InvalidBlankSerializer
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return self.model.objects.all()
+
+    def get_object(self, test_pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["test_pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def get(self, request, test_pk):
+        invalid_blanks = self.get_object(test_pk).invalid_blanks
+        serializer = self.serializer(invalid_blanks, many=True)
+        return Response(serializer.data)
+
+
+class InvalidBlankDetail(APIView):
+    model = InvalidBlank
+    serializer = InvalidBlankSerializer
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get_queryset(self):
+        return self.model.objects.all()
+
+    def get_object(self, pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj.test)
+        return obj
+
+    def get(self, request, pk):
+        invalid_blank = self.get_object(pk)
+        serialized = self.serializer(invalid_blank)
+        return Response(serialized.data)
+
+
 class BlankList(APIView):
     model = Test
     serializer = BlankSerializer
@@ -340,9 +379,18 @@ class BlankList(APIView):
     def post(self, request, test_pk):
         test = self.get_object(test_pk)
         images = request.FILES.getlist('images')
-        serialized_list = []
+
+        valid_serialized_list = []
+        invalid_serialized_list = []
         for image in images:
             results = checker(image.temporary_file_path())
+            if results == 'invalid':
+                blank = InvalidBlank.objects.create(
+                    test=test,
+                    image=image,
+                )
+                invalid_serialized_list.append(InvalidBlankSerializer(blank).data)
+                continue
             new_image = Image.fromarray(results.img)
             bytes_io = BytesIO()
             new_image.save(bytes_io, format='JPEG')
@@ -369,8 +417,12 @@ class BlankList(APIView):
                 answers=str(','.join(results.answers.values())),
                 image=file
             )
-            serialized_list.append(self.serializer(blank).data)
-        return Response(serialized_list, status=status.HTTP_201_CREATED)
+            valid_serialized_list.append(self.serializer(blank).data)
+        data = {
+            'invalidBlanks': invalid_serialized_list,
+            'validBlanks': valid_serialized_list
+        }
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
 class BlankDetail(APIView):

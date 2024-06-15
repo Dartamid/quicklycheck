@@ -57,6 +57,14 @@ class Blank(models.Model):
     answers = models.CharField(max_length=254)
 
 
+class InvalidBlank(models.Model):
+    test = models.ForeignKey('Test', on_delete=models.CASCADE, related_name='invalid_blanks')
+    image = models.ImageField(
+        'Фотография бланка',
+        upload_to='invalid_blanks/',
+    )
+
+
 class Assessment(models.Model):
     test = models.ForeignKey('Test', on_delete=models.CASCADE, related_name='assessments')
     min_pr = models.IntegerField()

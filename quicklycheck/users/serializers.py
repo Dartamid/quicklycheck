@@ -1,8 +1,7 @@
-from django.conf.global_settings import AUTH_PASSWORD_VALIDATORS
-from django.contrib.auth.password_validation import get_password_validators, validate_password
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
 
 from .exceptions import CustomValidationError
 from .models import Account

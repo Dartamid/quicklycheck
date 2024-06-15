@@ -61,7 +61,7 @@ class Blank:
                     raw_centers.append([[cx, cy], area])
                     # cv2.circle(self.img, (cx, cy), 7, (255, 255, 255), -1)
 
-        # display(gray)
+        # display(self.img)
 
         centers = self.find_closest_values(raw_centers)
         centers = self.sort_coordinates(self.get_distances(centers))
@@ -212,6 +212,20 @@ class Blank:
 
 
 def checker(file):
-    blank = Blank(file)
-    blank.check_data()
+    try:
+        blank = Blank(file)
+        blank.check_data()
+    except:
+        return 'invalid'
     return blank
+
+
+if __name__ == "__main__":
+    blank = checker('images/test.jpg')
+
+    print(f'ID: {blank.id}')
+    print(f'Variant: {blank.var}')
+    for row in range(5):
+        for answer in list(blank.answers.items())[8 * row:8 * (row + 1)]:
+            print(f'Ответ {answer[0] if int(answer[0]) > 9 else f'0{answer[0]}'}: {answer[1]}', end='  ||  ')
+        print()

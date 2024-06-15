@@ -5,7 +5,7 @@ from .views import (
     PatternDetail, StudentList, StudentDetail,
     BlankList, BlankDetail, UserList, TestList, TestDetail, TempTestList, TempPatternList, TempBlankList,
     TempPatternDetail, TempBlankDetail, ChangePasswordView, AssessmentList, AssessmentDetail, CreateUserView,
-    ProfileView, ProfileEditView
+    ProfileView, ProfileEditView, InvalidBlankList, InvalidBlankDetail
 )
 
 urls_auth = [
@@ -61,11 +61,17 @@ urls_blanks = [
     path('blank/<int:pk>/', BlankDetail.as_view(), name='blank_detail'),
 ]
 
+urls_invalid_blanks = [
+    path('test/<int:test_pk>/invalid_blanks/', InvalidBlankList.as_view(), name='invalid_blank_list'),
+    path('invalid_blank/<int:pk>/', InvalidBlankDetail.as_view(), name='invalid_blank_detail'),
+]
+
 
 urls_list = [
     urls_auth, urls_users, urls_temp,
     urls_test, urls_patterns, urls_assessment,
-    urls_class, urls_blanks, urls_students,
+    urls_class, urls_blanks, urls_invalid_blanks,
+    urls_students,
 ]
 urlpatterns = []
 
