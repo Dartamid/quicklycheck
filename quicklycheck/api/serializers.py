@@ -48,7 +48,7 @@ class BlankSerializer(serializers.ModelSerializer):
 class InvalidBlankSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvalidBlank
-        fields = '__all__'
+        fields = ['pk', 'test', 'image', 'created_at']
 
 
 class StudentDetailSerializer(serializers.ModelSerializer):
