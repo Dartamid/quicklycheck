@@ -64,6 +64,7 @@ class InvalidBlank(models.Model):
         'Фотография бланка',
         upload_to='invalid_blanks/',
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Assessment(models.Model):
