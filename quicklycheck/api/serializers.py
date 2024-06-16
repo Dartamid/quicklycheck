@@ -41,7 +41,8 @@ class BlankSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blank
-        fields = ['pk', 'test', 'testName', 'author', 'image', 'id_blank', 'var', 'answers']
+        fields = ['pk', 'test', 'testName', 'author', 'id_blank', 'var', 'answers']
+        readonly_fields = ['image',]
 
 
 class InvalidBlankSerializer(serializers.ModelSerializer):

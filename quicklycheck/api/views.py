@@ -615,6 +615,8 @@ class TempBlankList(APIView):
         serialized_list = []
         for image in images:
             results = checker(image.temporary_file_path())
+            if results == 'invalid':
+                continue
             new_image = Image.fromarray(results.img)
             bytes_io = BytesIO()
             new_image.save(bytes_io, format='JPEG')
