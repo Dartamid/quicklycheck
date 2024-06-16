@@ -357,6 +357,11 @@ class InvalidBlankDetail(APIView):
         serialized = self.serializer(invalid_blank)
         return Response(serialized.data)
 
+    def delete(self, request, pk):
+        invalid_blank = self.get_object(pk)
+        invalid_blank.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class BlankList(APIView):
     model = Test
