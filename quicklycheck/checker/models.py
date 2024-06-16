@@ -55,6 +55,7 @@ class Blank(models.Model):
         upload_to='blanks/',
     )
     answers = models.CharField(max_length=254)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class InvalidBlank(models.Model):
