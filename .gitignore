@@ -1,7 +1,8 @@
-/venv/
+**/venv/
 **/.idea/
 /quicklycheck/static/admin/
 **/migrations/
 **/static/
 **/media/
 **.sqlite3
+/quicklycheck/checker/images

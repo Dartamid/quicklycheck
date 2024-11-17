@@ -55,6 +55,16 @@ class Blank(models.Model):
         upload_to='blanks/',
     )
     answers = models.CharField(max_length=254)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class InvalidBlank(models.Model):
+    test = models.ForeignKey('Test', on_delete=models.CASCADE, related_name='invalid_blanks')
+    image = models.ImageField(
+        'Фотография бланка',
+        upload_to='invalid_blanks/',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Assessment(models.Model):
