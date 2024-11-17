@@ -12,6 +12,20 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
 
+THIRD_PARTY_APPS = [
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'drf_spectacular'
+]
+
+LOCAL_APPS = [
+    'checker',
+    'users',
+    'api.teachers',
+    'api',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -20,12 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
-    'corsheaders',
-    'checker',
-    'users',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'api',
+    *THIRD_PARTY_APPS,
+    *LOCAL_APPS,
 ]
 
 MIDDLEWARE = [
@@ -105,10 +115,18 @@ AUTHENTICATION_BACKENDS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-AUTH_USER_MODEL = 'users.User'
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'User Management API',                               # Название API
+    'DESCRIPTION': 'API для регистрации, получения и удаления пользователей.',  # Описание API
+    'VERSION': '1.0.0',                                           # Версия API
+    'SERVE_INCLUDE_SCHEMA': False,                                # Отключение схемы в ответах API
+}
+
+AUTH_USER_MODEL = 'teachers.User'
 
 # STATICFILES_DIRS = [
 #     BASE_DIR / "static",

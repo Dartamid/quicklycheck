@@ -5,27 +5,11 @@ from django.contrib.auth.password_validation import (
     MinimumLengthValidator, CommonPasswordValidator,
     NumericPasswordValidator, UserAttributeSimilarityValidator
 )
-from users.models import User, Account
-from users.exceptions import CustomValidationError
+from api.teachers.models import User, Account
+from api.teachers.exceptions import CustomValidationError
 from django.core import exceptions
-
+from api.teachers.serializers import TeacherSerializer
 from api.models import Feedback
-
-password_validators = [
-    MinimumLengthValidator, NumericPasswordValidator,
-]
-
-
-class ClassSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Class
-        fields = ['pk', 'number', 'letter', 'created_date']
-
-
-class TestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Test
-        fields = ['pk', 'name', 'grade']
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -42,12 +26,36 @@ class BlankSerializer(serializers.ModelSerializer):
         fields = ['pk', 'test', 'testName', 'author', 'image', 'id_blank', 'var', 'answers']
 
 
+class ClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Class
+        fields = ['pk', 'number', 'letter']
+
+
+class TestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = ['pk', 'name']
+
+
+class ClassDetailSerializer(serializers.ModelSerializer):
+    teacher = TeacherSerializer(source='teacher', read_only=True)
+    tests = TestSerializer(source='tests.all', many=True, read_only=True)
+    students = StudentSerializer(source='students.all', many=True, read_only=True)
+
+    class Meta:
+        model = Class
+        fields = ['pk', 'number', 'letter', 'teacher', 'tests', 'students']
+
+
 class StudentDetailSerializer(serializers.ModelSerializer):
+    teacher = TeacherSerializer(source='teacher', read_only=True)
     works = BlankSerializer(many=True, read_only=True, source='works.all')
+    grade = ClassSerializer(many=True, read_only=True, source='grade')
 
     class Meta:
         model = Student
-        fields = ['pk', 'name', 'grade', 'works']
+        fields = ['pk', 'name', 'grade', 'teacher', 'works']
 
 
 class PatternSerializer(serializers.ModelSerializer):
@@ -62,24 +70,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
         fields = ['pk', 'name', 'color', 'min_pr', 'max_pr']
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['pk', 'username']
 
-
-class AccountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Account
-        exclude = ['user', 'id']
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    profile = AccountSerializer(read_only=True, source='account')
-
-    class Meta:
-        model = User
-        fields = ['pk', 'username', 'email', 'profile']
 
 
 class FeedbackSerializer(serializers.ModelSerializer):
@@ -106,23 +97,4 @@ class TempBlankSerializer(serializers.ModelSerializer):
         fields = ['pk', 'test', 'image', 'id_blank', 'var', 'answers']
 
 
-class ChangePasswordSerializer(serializers.Serializer):
-    model = User
 
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(
-        required=True,
-    )
-
-    def validate(self, data):
-        error = {}
-        password = data.get('new_password')
-        try:
-            password_validation.validate_password(password=password)
-        except exceptions.ValidationError as e:
-            error['detail'] = e.messages[0]
-
-        if error:
-            raise CustomValidationError(detail=error)
-
-        return super(ChangePasswordSerializer, self).validate(data)

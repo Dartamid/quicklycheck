@@ -1,17 +1,18 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from .teachers.urls import urls_users
 from .views import (
     ClassList, ClassDetail, PatternList,
     PatternDetail, StudentList, StudentDetail,
-    BlankList, BlankDetail, UserList, TestList, TestDetail, TempTestList, TempPatternList, TempBlankList,
-    TempPatternDetail, TempBlankDetail, ChangePasswordView, AssessmentList, AssessmentDetail, CreateUserView,
-    ProfileView, ProfileEditView
+    BlankList, BlankDetail, TestList, TestDetail, TempTestList, TempPatternList, TempBlankList,
+    TempPatternDetail, TempBlankDetail,  AssessmentList, AssessmentDetail,
+
 )
 
 urls_auth = [
     path('token/', TokenObtainPairView.as_view(), name='token'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # path('auth/', include('rest_framework.urls')),
 ]
 
 urls_temp = [
@@ -38,13 +39,6 @@ urls_test = [
 ]
 
 # Обернуто
-urls_users = [
-    path('users/', UserList.as_view(), name='user_list'),
-    path('profile/', ProfileView.as_view(), name='profile'),
-    path('profile/edit/', ProfileEditView.as_view(), name='edit_profile'),
-    path('registration/', CreateUserView.as_view(), name='register'),
-    path('user/password_change/', ChangePasswordView.as_view(), name='password_change'),
-]
 
 urls_patterns = [
     path('test/<int:test_pk>/patterns/', PatternList.as_view(), name='pattern_list'),
