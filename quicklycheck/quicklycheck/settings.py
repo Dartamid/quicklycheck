@@ -20,10 +20,16 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    'checker',
-    'users',
-    'api.teachers',
-    'api',
+    'checker.apps.CheckerConfig',
+    'api.teachers.apps.TeachersConfig',
+    'api.students.apps.StudentsConfig',
+    'api.temps.apps.TempsConfig',
+    'api.feedbacks.apps.FeedbacksConfig',
+    'api.grades.apps.GradesConfig',
+    'api.patterns.apps.PatternsConfig',
+    'api.quizzes.apps.QuizzesConfig',
+    'api.combined.apps.CombinedConfig',
+    'api.apps.ApiConfig',
 ]
 
 INSTALLED_APPS = [
@@ -109,7 +115,7 @@ FILE_UPLOAD_HANDLERS = (
 )
 
 AUTHENTICATION_BACKENDS = [
-    'users.backends.UserModelBackend'
+    'api.teachers.backends.UserModelBackend'
 ]
 
 REST_FRAMEWORK = {
@@ -120,10 +126,10 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'User Management API',                               # Название API
-    'DESCRIPTION': 'API для регистрации, получения и удаления пользователей.',  # Описание API
-    'VERSION': '1.0.0',                                           # Версия API
-    'SERVE_INCLUDE_SCHEMA': False,                                # Отключение схемы в ответах API
+    'TITLE': 'Quicklycheck API Management',
+    'DESCRIPTION': 'Документация для Quicklycheck API.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 AUTH_USER_MODEL = 'teachers.User'

@@ -13,14 +13,14 @@ User = get_user_model()
 
 class UserList(APIView):
     model = User
-    serializer = UserSerializer
+    serializer_class = UserSerializer
     # creation_form = CustomUserCreationForm
 
     def get(self, request):
         if request.user.is_authenticated:
             if request.user.is_staff or request.user.is_superuser:
                 users = self.model.objects.all()
-                serialized = self.serializer(users, many=True)
+                serialized = self.serializer_class(users, many=True)
                 return Response(serialized.data, status=status.HTTP_200_OK)
             else:
                 return Response(
@@ -36,17 +36,17 @@ class UserList(APIView):
 
 class ProfileView(APIView):
     permission_classes = (IsAuthenticated,)
-    serializer = ProfileSerializer
+    serializer_class = ProfileSerializer
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        return Response(self.serializer(user).data, status=status.HTTP_200_OK)
+        return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)
 
 
 class ProfileEditView(APIView):
     permission_classes = (IsAuthenticated,)
     model = Account
-    serializer = AccountSerializer
+    serializer_class = AccountSerializer
 
     def get_account(self, request):
         user = get_object_or_404(self.model, user=request.user.id)
@@ -54,7 +54,7 @@ class ProfileEditView(APIView):
 
     def post(self, request):
         account = self.get_account(request)
-        serialized = self.serializer(account, data=request.data)
+        serialized = self.serializer_class(account, data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response(serialized.data)
