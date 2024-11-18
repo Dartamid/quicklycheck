@@ -1,8 +1,8 @@
 **/venv/
 **/.idea/
-/quicklycheck/static/admin/
+/src/static/admin/
 **/migrations/
 **/static/
 **/media/
 **.sqlite3
-/quicklycheck/checker/images
+/src/checker/images

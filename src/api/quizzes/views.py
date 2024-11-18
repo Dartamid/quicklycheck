@@ -8,6 +8,7 @@ from api.teachers.permissions import IsTeacher
 from api.quizzes.models import Quiz
 from api.quizzes.serializers import QuizSerializer
 
+
 class QuizList(APIView):
     model = Grade
     serializer_class = QuizSerializer
