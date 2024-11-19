@@ -11,7 +11,6 @@ ALLOWED_HOSTS = ['*']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
@@ -21,6 +20,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'checker.apps.CheckerConfig',
+    'api.assessments.apps.AssessmentsConfig',
+    'api.blanks.apps.BlanksConfig',
     'api.teachers.apps.TeachersConfig',
     'api.students.apps.StudentsConfig',
     'api.temps.apps.TempsConfig',

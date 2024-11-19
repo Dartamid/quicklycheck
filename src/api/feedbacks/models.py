@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from ..blanks.models import Blank
+from api.blanks.models import Blank
 
 User = get_user_model()
 

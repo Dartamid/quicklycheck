@@ -11,5 +11,9 @@ class Quiz(models.Model):
     name = models.CharField(max_length=254)
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='quizzes')
 
+    class Meta:
+        verbose_name = 'Quiz'
+        verbose_name_plural = 'Quizzes'
+
     def __str__(self):
         return self.name

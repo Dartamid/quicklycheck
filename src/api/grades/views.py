@@ -45,7 +45,7 @@ class GradeList(APIView):
         description="Создает новый класс к которому привязывается номер и буква",
         request=GradeSerializer,
         responses={
-            200: OpenApiResponse(
+            201: OpenApiResponse(
                 response=GradeSerializer(),
                 description="Новый класс"
             ),

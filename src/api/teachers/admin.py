@@ -14,5 +14,6 @@ class AccountAdmin(admin.StackedInline):
 
 @admin.register(User)
 class CustomizedUserAdmin(UserAdmin):
+    model = User
     inlines = [AccountAdmin]
 
