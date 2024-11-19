@@ -2,6 +2,7 @@ from PIL import Image
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
 
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,11 +28,37 @@ class BlankList(APIView):
         self.check_object_permissions(self.request, obj)
         return obj
 
+    @extend_schema(
+        tags=['Blanks'],
+        summary="Список выполненных работ",
+        description="Возвращает список выполненных работ  для Теста с ID <pk>",
+        responses={
+            200: OpenApiResponse(
+                response=BlankSerializer(many=True),
+                description="Список вариантов оценивания"
+            ),
+            403: OpenApiResponse(description="У вас нет доступа к данному тесту"),
+            404: OpenApiResponse(description="Тест с данным ID не найден")
+        }
+    )
     def get(self, request, test_pk):
         blanks = self.get_object(test_pk).blanks
         serializer = self.serializer_class(blanks, many=True)
         return Response(serializer.data)
 
+    @extend_schema(
+        tags=['Blanks'],
+        summary="Загрузка новой работы",
+        description="Загрузка работы на проверку для Теста с ID <pk>",
+        responses={
+            200: OpenApiResponse(
+                response=BlankSerializer(),
+                description="Проверенная работа"
+            ),
+            403: OpenApiResponse(description="У вас нет доступа к данному тесту"),
+            404: OpenApiResponse(description="Тест с данным ID не найден")
+        }
+    )
     def post(self, request, test_pk):
         test = self.get_object(test_pk)
         images = request.FILES.getlist('images')
@@ -81,11 +108,38 @@ class BlankDetail(APIView):
         self.check_object_permissions(self.request, obj.test)
         return obj
 
+    @extend_schema(
+        tags=['Blanks'],
+        summary="Проверенная работа",
+        description="Вовращает проверенную на работу по ID",
+        responses={
+            200: OpenApiResponse(
+                response=BlankSerializer(),
+                description="Проверенная работа"
+            ),
+            403: OpenApiResponse(description="У вас нет доступа к данному тесту"),
+            404: OpenApiResponse(description="Тест с данным ID не найден")
+        }
+    )
     def get(self, request, pk):
         blank = self.get_object(pk)
         serialized = self.serializer_class(blank)
         return Response(serialized.data)
 
+    @extend_schema(
+        tags=['Blanks'],
+        summary="Изменение проверенной работы",
+        description="Изменяет одно или несколько полей проверенной работы",
+        request=BlankSerializer(),
+        responses={
+            200: OpenApiResponse(
+                response=BlankSerializer(),
+                description="Измененная работа"
+            ),
+            403: OpenApiResponse(description="У вас нет доступа к данному тесту"),
+            404: OpenApiResponse(description="Тест с данным ID не найден")
+        }
+    )
     def put(self, request, pk):
         blank = self.get_object(pk)
         serialized = self.serializer_class(blank, data=request.data)
@@ -94,6 +148,19 @@ class BlankDetail(APIView):
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        tags=['Blanks'],
+        summary="Удаление работы",
+        description="Удаляет из базы данных работу по ID",
+        request=BlankSerializer(),
+        responses={
+            204: OpenApiResponse(
+                description="Работа удалена"
+            ),
+            403: OpenApiResponse(description="У вас нет доступа к данному тесту"),
+            404: OpenApiResponse(description="Тест с данным ID не найден")
+        }
+    )
     def delete(self, request, pk):
         blank = self.get_object(pk)
         blank.delete()

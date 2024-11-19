@@ -125,11 +125,23 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': True,
+    'LOGIN_URL': 'rest_framework:login',
+    'LOGOUT_URL': 'rest_framework:logout',
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.JSONParser',
+    ],
+    'JSON_EDITOR': True,
+}
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Quicklycheck API Management',
     'DESCRIPTION': 'Документация для Quicklycheck API.',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    'SERVE_INCLUDE_SCHEMA': True,
 }
 
 AUTH_USER_MODEL = 'teachers.User'

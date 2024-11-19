@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +13,7 @@ from api.quizzes.serializers import QuizSerializer
 class QuizList(APIView):
     model = Grade
     serializer_class = QuizSerializer
-    permission_classes = (IsAuthenticated, IsTeacher)
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         return self.model.objects.all()
@@ -22,12 +23,38 @@ class QuizList(APIView):
         self.check_object_permissions(self.request, obj)
         return obj
 
+    @extend_schema(
+        tags=['Quizzes'],
+        summary="Список тестов",
+        description="Возвращает список тестов для пользователя",
+        responses={
+            200: OpenApiResponse(
+                response=QuizSerializer(many=True),
+                description="Список тестов",
+            ),
+        }
+    )
     def get(self, request, class_pk):
         grade = self.get_object(class_pk)
         tests = grade.tests
         serialized = self.serializer_class(tests, many=True)
         return Response(serialized.data)
 
+    @extend_schema(
+        tags=['Quizzes'],
+        summary="Новый тест",
+        description="Создает новый тест для пользователя",
+        request=QuizSerializer(),
+        responses={
+            201: OpenApiResponse(
+                response=QuizSerializer(),
+                description="Новый тест",
+            ),
+            400: OpenApiResponse(
+                description="Ошибка валидации",
+            )
+        }
+    )
     def post(self, request, class_pk):
         data = request.data.copy()
         data['teacher'] = request.user
@@ -52,11 +79,46 @@ class QuizDetail(APIView):
         self.check_object_permissions(self.request, obj)
         return obj
 
+    @extend_schema(
+        tags=['Quizzes'],
+        summary="Детализация теста",
+        description="Возвращает все данные о тесте по ID",
+        responses={
+            200: OpenApiResponse(
+                response=QuizSerializer(),
+                description="Тест",
+            ),
+            403: OpenApiResponse(
+                description="У вас нет доступа к данному тесту",
+            ),
+            404: OpenApiResponse(
+                description="Тест с данным ID не найден",
+            )
+        }
+    )
     def get(self, request, test_pk):
         test = self.get_object(test_pk)
         serialized = self.serializer_class(test)
         return Response(serialized.data)
 
+    @extend_schema(
+        tags=['Quizzes'],
+        summary="Изменение теста",
+        description="Изменяет одно или несколько полей теста по ID",
+        request=QuizSerializer(),
+        responses={
+            200: OpenApiResponse(
+                response=QuizSerializer(),
+                description="Измененный тест",
+            ),
+            403: OpenApiResponse(
+                description="У вас нет доступа к данному тесту",
+            ),
+            404: OpenApiResponse(
+                description="Тест с данным ID не найден",
+            )
+        }
+    )
     def put(self, request, test_pk):
         test = self.get_object(test_pk)
         serialized = self.serializer_class(test, data=request.data)
@@ -65,6 +127,23 @@ class QuizDetail(APIView):
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        tags=['Quizzes'],
+        summary="Удаление теста",
+        description="Удаляет тест по ID",
+        request=QuizSerializer(),
+        responses={
+            204: OpenApiResponse(
+                description="Тест удален",
+            ),
+            403: OpenApiResponse(
+                description="У вас нет доступа к данному тесту",
+            ),
+            404: OpenApiResponse(
+                description="Тест с данным ID не найден",
+            )
+        }
+    )
     def delete(self, request, test_pk):
         test = self.get_object(test_pk)
         test.delete()

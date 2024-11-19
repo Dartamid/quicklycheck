@@ -1,10 +1,4 @@
 from django.urls import path, include
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
-urls_auth = [
-    path('token/', TokenObtainPairView.as_view(), name='token'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-]
 
 # urls_temp = [
 #     path('temp/tests/', TempTestList.as_view(), name='temp_list'),
@@ -16,14 +10,15 @@ urls_auth = [
 
 
 urlpatterns = [
-    path('assessments/', include('api.assessments.urls')),
-    path('students/', include('api.students.urls')),
-    path('teachers/', include('api.teachers.urls')),
-    path('blanks/', include('api.blanks.urls')),
-    path('grades/', include('api.grades.urls')),
-    # path('feedbacks/', include('api.feedbacks.urls')),
-    path('quizzes/', include('api.quizzes.urls')),
-    path('temps/', include('api.temps.urls')),
+    path('', include('api.assessments.urls')),
+    path('', include('api.students.urls')),
+    path('', include('api.teachers.urls')),
+    path('', include('api.blanks.urls')),
+    path('', include('api.patterns.urls')),
+    path('', include('api.grades.urls')),
+    path('', include('api.quizzes.urls')),
+    path('', include('api.temps.urls')),
+    path('', include('api.tokens.urls')),
 ]
 
-urlpatterns.extend(urls_auth)
+

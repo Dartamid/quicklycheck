@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
-from rest_framework import status, permissions
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import get_object_or_404, UpdateAPIView, CreateAPIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Account
-from .serializers import UserSerializer, ChangePasswordSerializer, CreateUserSerializer, ProfileSerializer, AccountSerializer
+from .serializers import UserSerializer, ChangePasswordSerializer, CreateUserSerializer, ProfileSerializer, \
+    AccountSerializer
 
 User = get_user_model()
 
@@ -14,8 +16,21 @@ User = get_user_model()
 class UserList(APIView):
     model = User
     serializer_class = UserSerializer
-    # creation_form = CustomUserCreationForm
 
+    @extend_schema(
+        tags=['Teachers'],
+        summary="Список учителей",
+        description="Возвращает список учителей. Запрос доступен только для администрации сайта",
+        responses={
+            200: OpenApiResponse(
+                response=UserSerializer(many=True),
+                description="Список учителей",
+            ),
+            403: OpenApiResponse(
+                description="У вас нет доступа к данному запросу",
+            )
+        }
+    )
     def get(self, request):
         if request.user.is_authenticated:
             if request.user.is_staff or request.user.is_superuser:
@@ -38,6 +53,20 @@ class ProfileView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
 
+    @extend_schema(
+        tags=['Teachers'],
+        summary="Профиль учителя",
+        description="Возвращает данные профиля учителя",
+        responses={
+            200: OpenApiResponse(
+                response=ProfileSerializer(),
+                description="Профиль учителя",
+            ),
+            403: OpenApiResponse(
+                description="Для данного запроса необходимо авторизоваться",
+            )
+        }
+    )
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)
@@ -52,6 +81,21 @@ class ProfileEditView(APIView):
         user = get_object_or_404(self.model, user=request.user.id)
         return user
 
+    @extend_schema(
+        tags=['Teachers'],
+        summary="Изменение данных учителя",
+        description="Изменяет одно или несколько полей данных профиля учителя",
+        request=AccountSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=ProfileSerializer(),
+                description="Профиль учителя",
+            ),
+            403: OpenApiResponse(
+                description="Для данного запроса необходимо авторизоваться",
+            )
+        }
+    )
     def post(self, request):
         account = self.get_account(request)
         serialized = self.serializer_class(account, data=request.data)
@@ -63,9 +107,30 @@ class ProfileEditView(APIView):
 
 class CreateUserView(CreateAPIView):
     model = User
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
     serializer_class = CreateUserSerializer
 
+    @extend_schema(
+        tags=['Users'],
+        summary="Регистрация пользователя",
+        description="Создаёт нового пользователя с уникальным email, именем, фамилией. "
+                    "Возраст должен быть в пределах от 16 до 99 лет.",
+        request=CreateUserSerializer,
+        examples=[
+            OpenApiExample(
+                'Registration Data',
+                {'email': 'example@example.com','password': 'password123'},
+                request_only=True
+            ),
+        ],
+        responses={
+            201: OpenApiResponse(
+                response={'detail': 'Успешная регистрация пользователя!'},
+                description="Пользователь успешно создан",
+            ),
+            400: OpenApiResponse(description="Ошибки валидации")
+        }
+    )
     def post(self, request, *args, **kwargs):
         self.create(request, *args, **kwargs)
 
@@ -74,37 +139,39 @@ class CreateUserView(CreateAPIView):
             status=status.HTTP_201_CREATED,
         )
 
-        # def post(self, request):
-    #
-    #     form = self.creation_form(request.data)
-    #
-    #     if form.is_valid():
-    #         email = form.cleaned_data.get('email')
-    #         if len(User.objects.filter(email=email)) == 0:
-    #             username = email.replace('@', '', 1)
-    #             password = form.cleaned_data.get('password1')
-    #             user = User.objects.create_user(username, email, password)
-    #             user.save()
-    #             return Response(data={'detail': 'Успешная регистрация пользователя'}, status=status.HTTP_201_CREATED)
-    #         return Response(
-    #             data={'detail': 'Данный Email уже используется в системе!'},
-    #             status=status.HTTP_400_BAD_REQUEST, exception=True
-    #         )
-    #     return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class ChangePasswordView(UpdateAPIView):
+class ChangePasswordView(APIView):
     model = User
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, ]
 
-    def get_object(self, queryset=None):
+    def get_user(self, queryset=None):
         obj = self.request.user
         return obj
 
-    def update(self, request, *args, **kwargs):
-        obj = self.get_object()
-        serialized = self.get_serializer(data=request.data)
+    @extend_schema(
+        tags=['Users'],
+        summary="Изменение пароля пользователя",
+        description="Изменяет пароль пользователя. Пароль должен содержать буквы латинского алфавита, цифры, "
+                    " не должен находиться в списке \"простых\" паролей.",
+        request=CreateUserSerializer,
+        examples=[
+            OpenApiExample(
+                'Change password Data',
+                {'old_password': 'oldpassword123', 'new_password': 'newpassword123'}
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                response={'detail': 'Установлен новый пароль!'},
+                description="Пароль успешно изменен"
+            ),
+            400: OpenApiResponse(description="Ошибки валидации")
+        }
+    )
+    def patch(self, request, *args, **kwargs):
+        obj = self.get_user()
+        serialized = self.serializer_class(data=request.data)
 
         if serialized.is_valid():
             if not obj.check_password(serialized.data.get("old_password")):
