@@ -6,4 +6,4 @@
 **.sqlite3
 /src/checker/images
 **/__pycache__
-**/migrations/**_initial.py
+**/migrations/00**.py
