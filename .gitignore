@@ -1,8 +1,9 @@
 **/venv/
 **/.idea/
 /src/static/admin/
-**/migrations/
 **/static/
 **/media/
 **.sqlite3
 /src/checker/images
+**/__pycache__
+**/migrations/**_initial.py
