@@ -4,8 +4,6 @@ from .models import Grade
 
 
 class GradeSerializer(serializers.ModelSerializer):
-    stats = GradeStatsSerializer(read_only=True, source='get_stats')
-    
     class Meta:
         model = Grade
-        fields = ['pk', 'number', 'letter', 'stats']
+        fields = ['pk', 'number', 'letter',]

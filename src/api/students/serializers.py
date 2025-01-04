@@ -7,3 +7,8 @@ class StudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = ['pk', 'name', 'grade']
 
+
+class StudentShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ['pk', 'name']

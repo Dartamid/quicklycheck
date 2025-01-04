@@ -42,9 +42,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class TeacherSerializer(serializers.ModelSerializer):
+    user_pk = serializers.IntegerField(source='user.pk')
+    
     class Meta:
-        model = User
-        fields = ['pk', 'first_name', 'last_name']
+        model = Account
+        fields = ['user_pk', 'last_name', 'first_name', 'patronymic']
 
 
 class ChangePasswordSerializer(serializers.Serializer):

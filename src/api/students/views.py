@@ -87,7 +87,7 @@ class StudentDetail(APIView):
         description="Возвращает всю информацию о студенте",
         responses={
             200: OpenApiResponse(
-                response=StudentSerializer(),
+                response=StudentDetailSerializer(),
                 description="Информация о ученике",
             ),
             403: OpenApiResponse(
@@ -107,7 +107,7 @@ class StudentDetail(APIView):
         tags=['Students'],
         summary="Изменение данных студента",
         description="Изменяет одно или несколько полей данных о студенте",
-        request=StudentDetailSerializer(),
+        request=StudentSerializer(),
         responses={
             200: OpenApiResponse(
                 response=StudentSerializer(),

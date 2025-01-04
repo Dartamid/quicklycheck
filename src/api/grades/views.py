@@ -63,7 +63,7 @@ class GradeList(APIView):
 
 class GradeDetail(APIView):
     model = Grade
-    serializer_class = GradeSerializer
+    serializer_class = GradeDetailSerializer
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get_queryset(self):
@@ -81,7 +81,7 @@ class GradeDetail(APIView):
         request=GradeSerializer,
         responses={
             200: OpenApiResponse(
-                response=GradeSerializer(),
+                response=GradeDetailSerializer(),
                 description="Класс по ID"
             ),
             403: OpenApiResponse(description="У вас нет доступа к данному классу"),
