@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from api.stats.serializers import GradeStatsSerializer
 
 User = get_user_model()
 
@@ -12,3 +13,14 @@ class Grade(models.Model):
 
     def __str__(self):
         return self.number + self.letter
+
+    def get_stats(self):
+        serializer = GradeStatsSerializer()
+        quizzes = self.quizzes.all()
+        
+        serializer.studentsCount = self.students.all().count()
+        serializer.blanksCount = sum([quiz.blanks_count() for quiz in quizzes])
+        serializer.quizzesCount = quizzes.count()
+        serializer.invalidBlanksCount = sum([quiz.invalid_blanks_count() for quiz in quizzes])
+        
+        return serializer

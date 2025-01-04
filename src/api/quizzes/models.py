@@ -17,3 +17,9 @@ class Quiz(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def blanks_count(self):
+        return self.blanks.all().count()
+    
+    def invalid_blanks_count(self):
+        return self.invalid_blanks.all().count()

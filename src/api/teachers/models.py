@@ -3,7 +3,12 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+    def __str__(self):
+        return self.account.__str__()
+        
 
 
 class Account(models.Model):
@@ -14,4 +19,4 @@ class Account(models.Model):
     gender = models.CharField(max_length=6, choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')], default='other')
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.last_name} {self.first_name} {self.patronymic}'
