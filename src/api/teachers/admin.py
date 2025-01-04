@@ -15,5 +15,10 @@ class AccountAdmin(admin.StackedInline):
 @admin.register(User)
 class CustomizedUserAdmin(UserAdmin):
     model = User
+    list_display = ('account_name',)
     inlines = [AccountAdmin]
+    
+    def account_name(self, obj):
+        return f'{obj.account.last_name} {obj.account.first_name} {obj.account.patronymic}'
+        
 

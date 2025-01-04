@@ -141,7 +141,7 @@ SWAGGER_SETTINGS = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Quicklycheck API Management',
     'DESCRIPTION': 'Документация для Quicklycheck API.',
-    'VERSION': '1.0.0',
+    'VERSION': '1.0.2b',
     'SERVE_INCLUDE_SCHEMA': True,
 }
 
