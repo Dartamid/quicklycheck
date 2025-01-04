@@ -12,6 +12,7 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
 THIRD_PARTY_APPS = [
+    'django_json_widget',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',

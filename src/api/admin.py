@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.db.models import JSONField
+from django_json_widget.widgets import JSONEditorWidget
 
 from api.grades.models import Grade
 from api.assessments.models import Assessment
@@ -19,6 +21,9 @@ class AssessmentsAdmin(admin.ModelAdmin):
 
 @admin.register(Blank)
 class BlanksAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        JSONField: {'widget': JSONEditorWidget},
+    }
     model = Blank
     list_display = [field.name for field in Blank._meta.fields]
 

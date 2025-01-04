@@ -88,7 +88,7 @@ class BlankList(APIView):
                 author=author,
                 var=var,
                 id_blank=str(results.id),
-                answers=str(','.join(results.answers.values())),
+                answers=results.answers,
                 image=file
             )
             serialized_list.append(self.serializer_class(blank).data)
