@@ -4,6 +4,10 @@ from api.quizzes.models import Quiz
 from api.students.models import Student
 
 
+def json_answers():
+    return {str(key+1, 0) for key in range(40)}
+
+
 class Blank(models.Model):
     quiz = models.ForeignKey(
         Quiz, on_delete=models.CASCADE, related_name='blanks',
@@ -29,7 +33,7 @@ class Blank(models.Model):
     )
     answers = models.JSONField(
         verbose_name='Ответы',
-        default={str(key+1): 0 for key in range(40)}
+        default=json_answers,
     )
     created_at = models.DateTimeField(
         verbose_name='Дата создания',
