@@ -28,7 +28,14 @@ class Grade(models.Model):
         for quiz in list(quizzes):
             quiz_blanks = list(quiz.blanks.all())
             blanks += [*quiz_blanks]
-
-        serializer.avgScore = sum([blank.score.percentage for blank in blanks]) / len(blanks)
         
+        serializer.fullworks = len(list(filter(lambda x: x.score.percentage == 100, blanks)))
+
+        students = [(student, student.get_avg()) for student in self.students.all()]
+        students_by_avg = sorted(students, key=lambda x: x[1], reverse=True)
+
+        serializer.bestAvg = students_by_avg[0][1]
+        serializer.worstAvg = students_by_avg[-1][1]
+        serializer.avgScore = sum([blank.score.percentage for blank in blanks]) / len(blanks)
+
         return serializer

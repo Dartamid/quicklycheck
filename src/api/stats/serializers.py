@@ -7,6 +7,9 @@ class GradeStatsSerializer(serializers.Serializer):
     blanksCount = serializers.IntegerField()
     invalidBlanksCount = serializers.IntegerField()
     avgScore = serializers.FloatField()
+    bestAvg = serializers.FloatField()
+    worstAvg = serializers.FloatField()
+    fullworks = serializers.IntegerField()
     
     class Meta:
         fields = ['--all--']
