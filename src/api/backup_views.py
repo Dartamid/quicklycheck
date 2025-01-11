@@ -28,24 +28,6 @@ from .teachers.models import Account
 from .teachers.serializers import ChangePasswordSerializer
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class TempTestList(APIView):
     model = TempTest
     serializer = TempTestSerializer

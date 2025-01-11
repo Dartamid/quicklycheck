@@ -59,8 +59,8 @@ class BlankList(APIView):
             404: OpenApiResponse(description="Тест с данным ID не найден")
         }
     )
-    def post(self, request, test_pk):
-        test = self.get_object(test_pk)
+    def post(self, request, quiz_pk):
+        quiz = self.get_object(quiz_pk)
         images = request.FILES.getlist('images')
         serialized_list = []
         for image in images:
@@ -72,19 +72,19 @@ class BlankList(APIView):
                 bytes_io, None, 'image.jpg', 'image/jpeg',
                 bytes_io.getbuffer().nbytes, None
             )
-            if len(test.grade.students.all()) >= int(results.id) - 1:
-                author = test.grade.students.all()[int(results.id) - 1]
+            if len(quiz.grade.students.all()) >= int(results.id) - 1:
+                author = quiz.grade.students.all()[int(results.id) - 1]
             else:
-                author = test.grade.students.all()[1]
-            if int(results.var) in [item.num for item in test.patterns.all()]:
+                author = quiz.grade.students.all()[1]
+            if int(results.var) in [item.num for item in quiz.patterns.all()]:
                 var = int(results.var)
             else:
-                if len(test.patterns.all()) > 0:
-                    var = test.patterns.all()[0].num
+                if len(quiz.patterns.all()) > 0:
+                    var = quiz.patterns.all()[0].num
                 else:
                     return Response('У данного теста не найдены варианты!', status=status.HTTP_400_BAD_REQUEST)
             blank = Blank.objects.create(
-                test=test,
+                quiz=quiz,
                 author=author,
                 var=var,
                 id_blank=str(results.id),

@@ -54,6 +54,7 @@ class PatternList(APIView):
         test = get_object_or_404(Quiz, pk=test_pk, teacher=request.user)
         data = request.data.copy()
         data['quiz'] = test.pk
+        data['teacher'] = test.teacher.pk
         serialized = self.serializer(data=data)
         if serialized.is_valid():
             serialized.save()

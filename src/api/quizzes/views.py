@@ -57,7 +57,7 @@ class QuizList(APIView):
     )
     def post(self, request, class_pk):
         data = request.data.copy()
-        data['teacher'] = request.user
+        data['teacher'] = request.user.pk
         data['grade'] = self.get_object(class_pk).pk
         serializer = self.serializer_class(data=data)
         if serializer.is_valid():

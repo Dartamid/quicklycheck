@@ -5,4 +5,4 @@ from .models import Pattern
 class PatternSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pattern
-        fields = ['pk', 'test', 'num', 'pattern']
+        fields = ['pk', 'quiz', 'num', 'pattern', 'teacher']

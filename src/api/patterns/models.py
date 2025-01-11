@@ -8,7 +8,7 @@ User = get_user_model()
 
 class Pattern(models.Model):
     teacher = models.ForeignKey(User, on_delete=models.CASCADE)
-    test = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='patterns')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='patterns')
     num = models.IntegerField(
         validators=[
             MinValueValidator(1),
