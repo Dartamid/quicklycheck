@@ -23,7 +23,9 @@ class Grade(models.Model):
         serializer.quizzesCount = quizzes.count()
         serializer.invalidBlanksCount = sum([quiz.invalid_blanks_count() for quiz in quizzes])
 
-        works = [blank for test in list(quiz.blanks.all()) for quiz in quizzes]
-        serializer.avgScore = sum(works, key= lambda x: x.score.percentage) / len(works)
+
+
+        works = Blanks.objects.filter(quiz__teacher=self.teacher).all()
+        serializer.avgScore = sum(works, key=lambda x: x.score.percentage) / len(works)
         
         return serializer
