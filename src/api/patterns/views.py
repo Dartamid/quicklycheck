@@ -8,6 +8,7 @@ from .serializers import PatternSerializer
 from api.teachers.permissions import IsTeacher
 from api.patterns.models import Pattern
 from api.quizzes.models import Quiz
+from api.blanks.views import check_blank
 
 
 class PatternList(APIView):
@@ -113,6 +114,9 @@ class PatternDetail(APIView):
         serialized = self.serializer(pattern, data=request.data)
         if serialized.is_valid():
             serialized.save()
+            blanks = pattern.quiz.blanks.filter(var=pattern.num)
+            for blank in blanks:
+                check_blank(blank.score)
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
