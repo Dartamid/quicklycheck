@@ -121,11 +121,11 @@ class BlankList(APIView):
                 serialized_list.append(self.serializer_class(blank).data)
             else:
                 without_pattern.append(self.serializer_class(blank).data)
-            response = {
-                "blanks": serialized_list,
-                "withoutPattern": without_pattern,
-                "invalidBlanks": invalid_blanks
-            }
+        response = {
+            "blanks": serialized_list,
+            "withoutPattern": without_pattern,
+            "invalidBlanks": invalid_blanks
+        }
         return Response(response, status=status.HTTP_201_CREATED)
 
 

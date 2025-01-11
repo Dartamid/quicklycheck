@@ -8,7 +8,7 @@ from api.stats.serializers import GradeStatsSerializer
 from api.grades.models import Grade
 from api.students.models import Student
 from api.quizzes.models import Quiz
-from api.stats.serializers import StudentStatsSerializer
+from api.stats.serializers import StudentStatsSerializer, QuizStatsSerializer
 
 
 
@@ -47,7 +47,8 @@ class QuizDetailSerializer(serializers.ModelSerializer):
     blanks = BlankSerializer(many=True, read_only=True, source='valid_blanks')
     without_pattern = BlankSerializer(many=True, read_only=True, source='without_pattern_blanks')
     invalid_blanks = InvalidBlankSerializer(many=True, read_only=True)
+    stats = QuizStatsSerializer(source='get_stats')
 
     class Meta:
         model = Quiz
-        fields = ['pk', 'name', 'grade', 'blanks', 'without_pattern', 'invalid_blanks']
+        fields = ['pk', 'name', 'stats', 'grade', 'blanks', 'without_pattern', 'invalid_blanks']
