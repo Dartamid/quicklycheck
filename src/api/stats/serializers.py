@@ -25,3 +25,11 @@ class QuizStatsSerializer(serializers.Serializer):
     
     class Meta:
         fields = ['--all--']
+
+
+class StudentStatsSerializer(serializers.Serializer):
+    worstWork = serializers.FloatField(default=0)
+    bestWork = serializers.FloatField(default=0)
+
+    class Meta:
+        fields = ['--all--']

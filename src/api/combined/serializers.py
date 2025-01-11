@@ -7,16 +7,19 @@ from api.grades.serializers import GradeSerializer
 from api.stats.serializers import GradeStatsSerializer
 from api.grades.models import Grade
 from api.students.models import Student
+from api.stats.serializers import StudentStatsSerializer
+
 
 
 class StudentDetailSerializer(serializers.ModelSerializer):
     teacher_detail = TeacherSerializer(source='teacher.account', read_only=True)
     works = BlankSerializer(many=True, read_only=True, source='works.all')
     grade_detail = GradeSerializer(read_only=True, source='grade')
+    stats = StudentStatsSerializer(read_only=True, source='get_stats')
 
     class Meta:
         model = Student
-        fields = ['pk', 'name', 'grade_detail', 'teacher_detail', 'works']
+        fields = ['pk', 'name', 'stats' , 'grade_detail', 'teacher_detail', 'works']
 
 
 class GradeDetailSerializer(serializers.ModelSerializer):

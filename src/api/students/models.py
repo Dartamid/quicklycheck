@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-
-from ..grades.models import Grade
+from api.stats.serializers import StudentStatsSerializer
+from api.grades.models import Grade
 
 User = get_user_model()
 
@@ -20,6 +20,17 @@ class Student(models.Model):
             avg = sum([blank.score.percentage for blank in blanks]) / len(blanks)
             return avg
         return 0
+    
+    def get_stats(self):
+        serializer = StudentStatsSerializer()
+        blanks = self.works.all().order_by("score__percentage")
+
+        if len(blanks) > 0:
+            serializer.worstWork = blanks.first().score.percentage
+            serializer.bestWork = blanks.last().score.percentage
+
+        return serializer
+
 
     class Meta:
         ordering = ('name',)
