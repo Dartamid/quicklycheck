@@ -10,12 +10,12 @@ class ScoreSerializer(serializers.ModelSerializer):
 
 
 class BlankSerializer(serializers.ModelSerializer):
-    score = ScoreSerializer(source='score', read_only=True)
+    blank_score = ScoreSerializer(source='score', read_only=True)
     testName = serializers.CharField(source='test.name', read_only=True)
     
 
     class Meta:
         model = Blank
-        fields = ['pk', 'quiz', 'testName', 'author', 'image', 'id_blank', 'var', 'answers', 'score']
+        fields = ['pk', 'quiz', 'testName', 'author', 'image', 'id_blank', 'var', 'answers', 'score', 'at_created']
         read_only_fields = ['image', 'author']
 

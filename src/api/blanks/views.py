@@ -16,17 +16,17 @@ from api.blanks.models import Blank, Score
 
 
 def check_blank(score):
-    pattern = score.blank.quiz.patterns.filter(num=score.blank.var)[0].split(',')
-    checked_answers = {}
+    pattern = score.blank.quiz.patterns.filter(num=score.blank.var)[0].pattern.split(',')
+    checked_answers = []
     right=0
     for key in range(len(pattern)):
         is_right = True if pattern[key] == score.blank.answers[str(key)] else False
         right += 1 if is_right else 0
-        checked_answers[str(key)] = {
+        checked_answers.append({
             'actual': score.blank.answers[str(key)],
             'correct': pattern[key],
             'isRight': is_right,
-        }
+        })
     score.percentage = right/len(pattern)
     score.total=len(pattern)
     score.right=right
