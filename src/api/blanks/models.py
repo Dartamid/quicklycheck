@@ -62,7 +62,7 @@ class Blank(models.Model):
 
 
 class InvalidBlank(models.Model):
-    test = models.ForeignKey(
+    quiz = models.ForeignKey(
         Quiz, on_delete=models.CASCADE, related_name='invalid_blanks',
         verbose_name='Тест'
     )

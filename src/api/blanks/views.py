@@ -11,8 +11,8 @@ from rest_framework.generics import get_object_or_404
 from checker.utils import checker
 from api.quizzes.models import Quiz
 from api.teachers.permissions import IsTeacher
-from api.blanks.serializers import BlankSerializer
-from api.blanks.models import Blank, Score
+from api.blanks.serializers import BlankSerializer, InvalidBlankSerializer
+from api.blanks.models import Blank, Score, InvalidBlank
 
 
 def check_blank(score):
@@ -82,9 +82,17 @@ class BlankList(APIView):
     def post(self, request, quiz_pk):
         quiz = self.get_object(quiz_pk)
         images = request.FILES.getlist('images')
+        invalid_blanks = []
         serialized_list = []
         for image in images:
             results = checker(image.temporary_file_path())
+            if results == 'invalid':
+                blank = InvalidBlank.objects.create(
+                    quiz=quiz,
+                    image=image,
+                )
+                invalid_blanks.append(InvalidBlankSerializer(blank).data)
+                continue
             new_image = Image.fromarray(results.img)
             bytes_io = BytesIO()
             new_image.save(bytes_io, format='JPEG')
@@ -110,7 +118,11 @@ class BlankList(APIView):
             if var in [item.num for item in quiz.patterns.all()]:
                 check_blank(score)
             serialized_list.append(self.serializer_class(blank).data)
-        return Response(serialized_list, status=status.HTTP_201_CREATED)
+            response = {
+                "blanks": serialized_list,
+                "invalidBlanks": invalid_blanks
+            }
+        return Response(response, status=status.HTTP_201_CREATED)
 
 
 class BlankDetail(APIView):

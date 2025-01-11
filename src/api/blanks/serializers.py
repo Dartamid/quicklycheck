@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Blank, Score
+from .models import Blank, Score, InvalidBlank
 
 
 class ScoreSerializer(serializers.ModelSerializer):
@@ -19,3 +19,10 @@ class BlankSerializer(serializers.ModelSerializer):
         fields = ['pk', 'quiz', 'testName', 'author', 'image', 'id_blank', 'var', 'answers', 'blank_score', 'created_at']
         read_only_fields = ['image', 'author']
 
+
+class InvalidBlankSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = InvalidBlank
+        fields = ['quiz', 'image', 'created_at']
+        read_only_fields = ['image']
