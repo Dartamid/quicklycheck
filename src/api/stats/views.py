@@ -30,7 +30,7 @@ class GradeStatsByPeriodView(APIView):
         grade = self.get_object(request, grade_pk)
         blanks = grade.get_blanks()
         if 'period' in request.query_params.keys():
-            per = request.query_params['period']
+            per = int(request.query_params['period'])
         else:
             per = 0
 
@@ -73,18 +73,22 @@ class QuizGraphsView(APIView):
         blanks = quiz.valid_blanks()
 
         raw_data = {}
-        clear_data = {}
+        clear_data = {
+            'questions': {}
+        }
         if len(blanks) > 0:
             for blank in blanks:
                 for i, answer in enumerate(blank.score.checked_answers):
-                    if i in raw_data.keys():
+                    if str(i) in raw_data.keys():
                         raw_data[str(i)] += 1 if answer['isRight'] else 0
                     else:
                         raw_data[str(i)] = 1 if answer['isRight'] else 0
 
-            most_hard = min(list(raw_data.items()), key=lambda x: x[1])
-            check = list(raw_data.values())
-            clear_data["questions"] = [item / len(blanks) * 100 for item in raw_data.values()],
-            clear_data["mostHard"] = most_hard[0]
+            for key, value in raw_data.items():
+                clear_data['questions'][key] = value / len(blanks) * 100
+
+            most_hard = min(list(clear_data['questions'].items()), key=lambda x: x[1])
+             
+            clear_data["mostHardQuestion"] = int(most_hard[0])
         
-        return Response(clear_data, status=status.HTTP_200_OK)
+        return Response({"stats": clear_data}, status=status.HTTP_200_OK)
