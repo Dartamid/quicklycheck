@@ -5,7 +5,7 @@ from django_json_widget.widgets import JSONEditorWidget
 
 from api.grades.models import Grade
 from api.assessments.models import Assessment
-from api.blanks.models import Blank
+from api.blanks.models import Blank, Score
 from api.students.models import Student
 from api.patterns.models import Pattern
 from api.quizzes.models import Quiz
@@ -19,13 +19,19 @@ class AssessmentsAdmin(admin.ModelAdmin):
     list_display = [field.name for field in Assessment._meta.fields]
 
 
+class ScoreAdmin(admin.StackedInline):
+    model = Score
+    can_delete = False
+    verbose_name_plural = 'Score'
+    
+
 @admin.register(Blank)
 class BlanksAdmin(admin.ModelAdmin):
     formfield_overrides = {
         JSONField: {'widget': JSONEditorWidget},
     }
     model = Blank
-    list_display = [field.name for field in Blank._meta.fields]
+    list_display = [field.name for field in Blank._meta.fields] + [ScoreAdmin]
 
 
 @admin.register(Grade)

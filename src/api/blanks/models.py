@@ -77,7 +77,7 @@ class InvalidBlank(models.Model):
 
 
 class Score(models.Model):
-    blank = models.ForeignKey(Blank, on_delete=models.CASCADE)
+    blank = models.OneToOneField(Blank, on_delete=models.CASCADE, related_name='score')
     is_checked = models.BooleanField(
         'Проверка проведена',
         default=False
