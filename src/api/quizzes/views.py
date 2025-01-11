@@ -8,6 +8,7 @@ from api.grades.models import Grade
 from api.teachers.permissions import IsTeacher
 from api.quizzes.models import Quiz
 from api.quizzes.serializers import QuizSerializer
+from api.combined.serializers import QuizDetailSerializer
 
 
 class QuizList(APIView):
@@ -85,7 +86,7 @@ class QuizDetail(APIView):
         description="Возвращает все данные о тесте по ID",
         responses={
             200: OpenApiResponse(
-                response=QuizSerializer(),
+                response=QuizDetailSerializer(),
                 description="Тест",
             ),
             403: OpenApiResponse(
@@ -98,7 +99,7 @@ class QuizDetail(APIView):
     )
     def get(self, request, test_pk):
         test = self.get_object(test_pk)
-        serialized = self.serializer_class(test)
+        serialized = QuizDetailSerializer(test)
         return Response(serialized.data)
 
     @extend_schema(

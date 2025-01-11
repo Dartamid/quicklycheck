@@ -16,12 +16,8 @@ class GradeStatsSerializer(serializers.Serializer):
 
 
 class QuizStatsSerializer(serializers.Serializer):
-    blanksCount = serializers.IntegerField(default=0)
-    invalidBlanksCount = serializers.IntegerField(default=0)
-    avgScore = serializers.FloatField(default=0)
-    bestWork = serializers.FloatField(default=0)
     worstWork = serializers.FloatField(default=0)
-    fullWorks = serializers.IntegerField(default=0)
+    avgScore = serializers.IntegerField(default=0)
     
     class Meta:
         fields = ['--all--']

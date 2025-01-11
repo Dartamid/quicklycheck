@@ -8,8 +8,8 @@ from rest_framework.response import Response
 
 
 period_choices = {
-    'mouth': '%d.%m',
-    'year': '%m'
+    'mouth': '%d.%m.%Y',
+    'year': '%m.%y'
 }
 
 
@@ -33,16 +33,23 @@ class GradeStatsByPeriodView(APIView):
         else:
             period = 'mouth'
 
-        data = {}
+        raw_data = {}
 
         for blank in blanks:
             date = blank.created_at.strftime(period_choices[period])
-            if date in data.keys():
-                data[date].append(int(blank.score.percentage))
+            if date in raw_data.keys():
+                raw_data[date].append(int(blank.score.percentage))
             else:
-                data[date] = [int(blank.score.percentage)]
+                raw_data[date] = [int(blank.score.percentage)]
 
-        for key in data.keys():
-            data[key] = sum(data[key]) / len(data[key])
+        clear_data = {
+            "stats": [],
+        }
 
-        return Response(data, status=status.HTTP_200_OK)
+        for key in raw_data.keys():
+            clear_data['stats'].append({
+                "date": key,
+                "avg": sum(raw_data[key]) / len(raw_data[key])
+            })
+
+        return Response(clear_data, status=status.HTTP_200_OK)
