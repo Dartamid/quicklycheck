@@ -72,7 +72,7 @@ class PatternDetail(APIView):
 
     def get_object(self, patt_pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["patt_pk"])
-        self.check_object_permissions(self.request, obj.test)
+        self.check_object_permissions(self.request, obj.quiz)
         return obj
 
     @extend_schema(

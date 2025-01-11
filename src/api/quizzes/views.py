@@ -36,7 +36,7 @@ class QuizList(APIView):
     )
     def get(self, request, class_pk):
         grade = self.get_object(class_pk)
-        tests = grade.tests
+        tests = grade.quizzes
         serialized = self.serializer_class(tests, many=True)
         return Response(serialized.data)
 

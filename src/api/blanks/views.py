@@ -18,7 +18,7 @@ from api.blanks.models import Blank, Score
 def check_blank(score):
     pattern = score.blank.quiz.patterns.filter(num=score.blank.var)[0].pattern.split(',')
     checked_answers = [x for x in range(len(pattern))]
-    right=0
+    right = 0
     for key in range(len(pattern)):
         is_right = True if pattern[key] == score.blank.answers[key] else False
         right += 1 if is_right else 0
@@ -27,11 +27,12 @@ def check_blank(score):
         'correct': pattern[key],
         'isRight': is_right,
         }
-    score.percentage = right/len(pattern)
+    score.percentage = right/len(pattern) * 100
     score.total=len(pattern)
     score.right=right
     score.is_checked=True
     score.checked_answers=checked_answers
+    score.save()
 
 
 class BlankList(APIView):
@@ -95,14 +96,6 @@ class BlankList(APIView):
                 author = quiz.grade.students.all()[int(results.id) - 1]
             else:
                 author = quiz.grade.students.all()[1]
-            # if int(results.var) in [item.num for item in quiz.patterns.all()]:
-            #     var = int(results.var)
-                
-            # else:
-            #     if len(quiz.patterns.all()) > 0:
-            #         var = quiz.patterns.all()[0].num
-            #     else:
-            #         return Response('У данного теста не найдены варианты!', status=status.HTTP_400_BAD_REQUEST)
             if 0 < int(results.var) <= 10:
                 var = int(results.var)
             blank = Blank.objects.create(

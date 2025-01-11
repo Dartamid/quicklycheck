@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import math
+import imageio
+
 
 
 def display(img, frame_name="OpenCV Image"):
@@ -12,10 +14,24 @@ def display(img, frame_name="OpenCV Image"):
     cv2.waitKey(0)
 
 
+def open_img(file_path):
+    if file_path.lower().split('.')[-1] in ['heic', 'heif']:
+        heif_file = imageio.imread(file_path)
+        img = cv2.cvtColor(heif_file, cv2.COLOR_RGB2BGR)
+        height, width = img.shape[:2]
+        new_width = width // 3
+        new_height = height // 3
+        img = cv2.resize(img, (new_width, new_height))
+        return img
+    else:
+        img = cv2.imread(file_path)
+    return img
+
+
 class Blank:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.img = cv2.imread(file_path)
+        self.img = open_img(file_path)
         self.centers = self.getting_boxes()
         self.ratio = 0.74
         self.ver_ratio = None
@@ -27,7 +43,7 @@ class Blank:
     def getting_boxes(self):
         raw_centers = []
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-        _, threshold = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+        _, threshold = cv2.threshold(gray, 85, 255, cv2.THRESH_BINARY)
 
         contours, _ = cv2.findContours(
             threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -150,22 +166,28 @@ class Blank:
         self.ver_ratio = abs(self.centers[0][1] - self.centers[-1][1]) / 1234
 
     def check_line(self, image, first_check, count, inter, addition=0):
+        pixels = []
         result = ''
         y = round(first_check[1] * self.ver_ratio)
         for checkbox in range(count):
             x = round((first_check[0] * self.hor_ratio) + (inter * self.ver_ratio) * checkbox)
             pixel = image[y, x]
-            if pixel < 90:
-                result += str(checkbox + addition)
-            cv2.circle(image, (x, y), 7, (0, 0, 0), -1)
-        # display(image)
+            pixels.append(pixel)
+        avg = sum(pixels,) / len(pixels)
+        for i, pixel in enumerate(pixels):
+            if pixel / avg < 0.8 and pixel < 70 or pixel < 30 or pixel / avg < 0.5:
+                result += str(i+addition)
         return result
 
     def check_data(self):
         self.get_perspective()
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.convertScaleAbs(gray, alpha=0.5, beta=70)
+        gray = cv2.equalizeHist(gray)
         # _, img = cv2.threshold(self.img, 112, 200, cv2.THRESH_BINARY)
-        img = cv2.GaussianBlur(gray, (11, 11), 0)
+        img = cv2.GaussianBlur(gray, (17, 17), 0)
+
+        # display(img)
 
         blank_id0 = self.check_line(img, [243, 195], 10, 45, 0)
         blank_id1 = self.check_line(img, [243, 255], 10, 45, 0)

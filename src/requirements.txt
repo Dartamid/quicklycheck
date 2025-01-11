@@ -31,3 +31,4 @@ opencv-python-headless
 django-json-widget
 django-json-field-schema-validator
 djangorestframework-camel-case
+imageio

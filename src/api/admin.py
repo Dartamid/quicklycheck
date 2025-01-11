@@ -20,6 +20,9 @@ class AssessmentsAdmin(admin.ModelAdmin):
 
 
 class ScoreAdmin(admin.StackedInline):
+    formfield_overrides = {
+        JSONField: {'widget': JSONEditorWidget},
+    }
     model = Score
     can_delete = False
     verbose_name_plural = 'Score'
@@ -31,13 +34,14 @@ class BlanksAdmin(admin.ModelAdmin):
         JSONField: {'widget': JSONEditorWidget},
     }
     model = Blank
-    list_display = [field.name for field in Blank._meta.fields] + [ScoreAdmin]
+    inlines = [ScoreAdmin]
+    list_display = [field.name for field in Blank._meta.fields]
 
 
 @admin.register(Grade)
 class GradeAdmin(admin.ModelAdmin):
     model = Grade
-    list_display = [field.name for field in Grade._meta.fields]
+    list_display = ['__str__']
 
 
 @admin.register(Pattern)

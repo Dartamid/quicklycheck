@@ -12,7 +12,7 @@ class Grade(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.number + self.letter
+        return f'{self.number}{self.letter} {self.teacher}'
 
     def get_stats(self):
         serializer = GradeStatsSerializer()
@@ -24,8 +24,11 @@ class Grade(models.Model):
         serializer.invalidBlanksCount = sum([quiz.invalid_blanks_count() for quiz in quizzes])
 
 
+        blanks = []
+        for quiz in list(quizzes):
+            quiz_blanks = list(quiz.blanks.all())
+            blanks += [*quiz_blanks]
 
-        works = Blanks.objects.filter(quiz__teacher=self.teacher).all()
-        serializer.avgScore = sum(works, key=lambda x: x.score.percentage) / len(works)
+        serializer.avgScore = sum([blank.score.percentage for blank in blanks]) / len(blanks)
         
         return serializer
