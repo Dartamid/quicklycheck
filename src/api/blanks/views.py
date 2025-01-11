@@ -23,8 +23,8 @@ class BlankList(APIView):
     def get_queryset(self):
         return self.model.objects.all()
 
-    def get_object(self, test_pk):
-        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["test_pk"])
+    def get_object(self, quiz_pk):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["quiz_pk"])
         self.check_object_permissions(self.request, obj)
         return obj
 
@@ -41,8 +41,8 @@ class BlankList(APIView):
             404: OpenApiResponse(description="Тест с данным ID не найден")
         }
     )
-    def get(self, request, test_pk):
-        blanks = self.get_object(test_pk).blanks
+    def get(self, request, quiz_pk):
+        blanks = self.get_object(quiz_pk).blanks
         serializer = self.serializer_class(blanks, many=True)
         return Response(serializer.data)
 
@@ -88,7 +88,7 @@ class BlankList(APIView):
                 author=author,
                 var=var,
                 id_blank=str(results.id),
-                answers=results.answers,
+                answers=list(results.answers.values()),
                 image=file
             )
             serialized_list.append(self.serializer_class(blank).data)
@@ -105,7 +105,7 @@ class BlankDetail(APIView):
 
     def get_object(self, pk):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
-        self.check_object_permissions(self.request, obj.test)
+        self.check_object_permissions(self.request, obj.quiz)
         return obj
 
     @extend_schema(
