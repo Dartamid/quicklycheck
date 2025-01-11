@@ -28,7 +28,7 @@ class GradeStatsByPeriodView(APIView):
     def get(self, request, grade_pk, period='mouth'):
         grade = self.get_object(request, grade_pk)
         blanks = grade.get_blanks()
-        if request.query_params['period']:
+        if 'period' in request.query_params.keys():
             period = request.query_params['period']
         else:
             period = 'mouth'
