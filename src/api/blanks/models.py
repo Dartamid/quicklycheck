@@ -19,6 +19,13 @@ from django_json_field_schema_validator.validators import JSONFieldSchemaValidat
 def json_answers():
     return [ 0 for _ in range(40)]
 
+def json_checked_answers():
+    return [ {
+        'actual': 0,
+        'correct': 0,
+        'isRight': False,
+    } for _ in range(40)]
+
 
 class Blank(models.Model):
     quiz = models.ForeignKey(
@@ -66,4 +73,39 @@ class InvalidBlank(models.Model):
     created_at = models.DateTimeField(
         verbose_name='Дата создания',
         auto_now_add=True
+    )
+
+
+class Score(models.Model):
+    blank = models.ForeignKey(Blank, on_delete=models.CASCADE)
+    is_checked = models.BooleanField(
+        'Проверка проведена',
+        default=False
+    )
+    percentage = models.FloatField(
+        default=0,
+        verbose_name='Процент выполнения',
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100)
+        ]
+    )
+    total = models.IntegerField(
+        default=0,
+        verbose_name='Процент выполнения',
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(40)
+        ]
+    )
+    right = models.IntegerField(
+        default=0,
+        verbose_name='Процент выполнения',
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(40)
+        ]
+    )
+    checked_answers = models.JSONField(
+        default=json_checked_answers
     )

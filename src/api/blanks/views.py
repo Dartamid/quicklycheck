@@ -12,7 +12,26 @@ from checker.utils import checker
 from api.quizzes.models import Quiz
 from api.teachers.permissions import IsTeacher
 from api.blanks.serializers import BlankSerializer
-from api.blanks.models import Blank
+from api.blanks.models import Blank, Score
+
+
+def check_blank(score):
+    pattern = score.blank.quiz.patterns.filter(num=score.blank.var)[0].split(',')
+    checked_answers = {}
+    right=0
+    for key in range(len(pattern)):
+        is_right = True if pattern[key] == score.blank.answers[str(key)] else False
+        right += 1 if is_right else 0
+        checked_answers[str(key)] = {
+            'actual': score.blank.answers[str(key)],
+            'correct': pattern[key],
+            'isRight': is_right,
+        }
+    score.percentage = right/len(pattern)
+    score.total=len(pattern)
+    score.right=right
+    score.is_checked=True
+    score.checked_answers=checked_answers
 
 
 class BlankList(APIView):
@@ -76,13 +95,16 @@ class BlankList(APIView):
                 author = quiz.grade.students.all()[int(results.id) - 1]
             else:
                 author = quiz.grade.students.all()[1]
-            if int(results.var) in [item.num for item in quiz.patterns.all()]:
+            # if int(results.var) in [item.num for item in quiz.patterns.all()]:
+            #     var = int(results.var)
+                
+            # else:
+            #     if len(quiz.patterns.all()) > 0:
+            #         var = quiz.patterns.all()[0].num
+            #     else:
+            #         return Response('У данного теста не найдены варианты!', status=status.HTTP_400_BAD_REQUEST)
+            if 0 < int(results.var) <= 10:
                 var = int(results.var)
-            else:
-                if len(quiz.patterns.all()) > 0:
-                    var = quiz.patterns.all()[0].num
-                else:
-                    return Response('У данного теста не найдены варианты!', status=status.HTTP_400_BAD_REQUEST)
             blank = Blank.objects.create(
                 quiz=quiz,
                 author=author,
@@ -91,6 +113,9 @@ class BlankList(APIView):
                 answers=list(results.answers.values()),
                 image=file
             )
+            score = Score.objects.create(blank=blank)
+            if var in [item.num for item in quiz.patterns.all()]:
+                check_blank(score)
             serialized_list.append(self.serializer_class(blank).data)
         return Response(serialized_list, status=status.HTTP_201_CREATED)
 
