@@ -28,15 +28,15 @@ class GradeStatsByPeriodView(APIView):
     def get(self, request, grade_pk, period='mouth'):
         grade = self.get_object(request, grade_pk)
         blanks = grade.get_blanks()
-        if 'period' in request.query_params.keys():
-            period = request.query_params['period']
+        if period in period_choices.keys():
+            per = period
         else:
-            period = 'mouth'
+            per = 'mouth'
 
         raw_data = {}
 
         for blank in blanks:
-            date = blank.created_at.strftime(period_choices[period])
+            date = blank.created_at.strftime(period_choices[per])
             if date in raw_data.keys():
                 raw_data[date].append(int(blank.score.percentage))
             else:
