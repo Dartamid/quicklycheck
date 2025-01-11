@@ -13,6 +13,14 @@ class Grade(models.Model):
 
     def __str__(self):
         return f'{self.number}{self.letter} {self.teacher}'
+    
+    def get_blanks(self):
+        quizzes = self.quizzes.all()
+        blanks = []
+        for quiz in quizzes:
+            quiz_blanks = list(quiz.blanks.all())
+            blanks += [*quiz_blanks]
+        return blanks
 
     def get_stats(self):
         serializer = GradeStatsSerializer()
@@ -24,14 +32,11 @@ class Grade(models.Model):
         serializer.invalidBlanksCount = sum([quiz.invalid_blanks_count() for quiz in quizzes])
 
 
-        blanks = []
-        for quiz in list(quizzes):
-            quiz_blanks = list(quiz.blanks.all())
-            blanks += [*quiz_blanks]
+        blanks = self.get_blanks()
         
         serializer.fullworks = len(list(filter(lambda x: x.score.percentage == 100, blanks)))
 
-        if serializer.studentsCount > 0:
+        if serializer.studentsCount > 0 and serializer.blanksCount > 0:
             students = [(student, student.get_avg()) for student in self.students.all()]
             students_by_avg = sorted(students, key=lambda x: x[1], reverse=True)
 

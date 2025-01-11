@@ -17,6 +17,7 @@ urlpatterns = [
     path('', include('api.patterns.urls')),
     path('', include('api.grades.urls')),
     path('', include('api.quizzes.urls')),
+    path('', include('api.stats.urls')),
     path('', include('api.temps.urls')),
     path('', include('api.tokens.urls')),
 ]
