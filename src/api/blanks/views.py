@@ -83,6 +83,7 @@ class BlankList(APIView):
         quiz = self.get_object(quiz_pk)
         images = request.FILES.getlist('images')
         invalid_blanks = []
+        without_pattern = []
         serialized_list = []
         for image in images:
             results = checker(image.temporary_file_path())
@@ -117,9 +118,12 @@ class BlankList(APIView):
             score = Score.objects.create(blank=blank)
             if var in [item.num for item in quiz.patterns.all()]:
                 check_blank(score)
-            serialized_list.append(self.serializer_class(blank).data)
+                serialized_list.append(self.serializer_class(blank).data)
+            else:
+                without_pattern.append(self.serializer_class(blank).data)
             response = {
                 "blanks": serialized_list,
+                "withoutPattern": without_pattern,
                 "invalidBlanks": invalid_blanks
             }
         return Response(response, status=status.HTTP_201_CREATED)
