@@ -95,7 +95,7 @@ class QuizGraphsView(APIView):
         return Response({"stats": clear_data}, status=status.HTTP_200_OK)
     
 
-class StudentsGraphsView(APIView):
+class StudentGraphsView(APIView):
     model = Student
     permission_classes = (IsAuthenticated, IsTeacher)
 
