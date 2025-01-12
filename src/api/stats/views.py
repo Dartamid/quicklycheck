@@ -107,8 +107,8 @@ class StudentGraphsView(APIView):
         self.check_object_permissions(self.request, obj)
         return obj
     
-    def get(self, request, grade_pk):
-        student = self.get_object(request, grade_pk)
+    def get(self, request, student_pk):
+        student = self.get_object(request, student_pk)
         blanks = student.works.all()
         if 'period' in request.query_params.keys():
             per = int(request.query_params['period'])
