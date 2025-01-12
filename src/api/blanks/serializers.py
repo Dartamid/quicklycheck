@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Blank, Score, InvalidBlank
 from api.students.serializers import StudentSerializer
+from api.grades.serializers import GradeSerializer
 
 
 class ScoreSerializer(serializers.ModelSerializer):
@@ -23,8 +24,9 @@ class BlankSerializer(serializers.ModelSerializer):
 
 
 class InvalidBlankSerializer(serializers.ModelSerializer):
+    grade = GradeSerializer(read_only=True, source='quiz.grade')
 
     class Meta:
         model = InvalidBlank
-        fields = ['quiz', 'image', 'created_at']
+        fields = ['pk', 'quiz', 'image', 'grade' ,'created_at']
         read_only_fields = ['image']

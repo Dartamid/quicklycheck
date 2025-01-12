@@ -5,14 +5,14 @@ from api.students.models import Student
 from django_json_field_schema_validator.validators import JSONFieldSchemaValidator
 
 
-# answers_schema = {
-#   "$schema": "http://json-schema.org/draft-07/schema#",
-#   "type": "object",
-#   "properties":{
-#       str(key+1): {"type": "integer", "minimum": 0, "maximum": 12345} for key in range(40)
-#   },
-#   "required": [str(key+1) for key in range(40)]
-# }
+answers_schema = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties":{
+      str(key+1): {"type": "integer", "minimum": 0, "maximum": 12345} for key in range(40)
+  },
+  "required": [str(key+1) for key in range(40)]
+}
 
 
 
@@ -53,7 +53,7 @@ class Blank(models.Model):
     answers = models.JSONField(
         verbose_name='Ответы',
         default=json_answers,
-        # validators=[JSONFieldSchemaValidator(schema=answers_schema)]
+        validators=[JSONFieldSchemaValidator(schema=answers_schema)]
     )
     created_at = models.DateTimeField(
         verbose_name='Дата создания',

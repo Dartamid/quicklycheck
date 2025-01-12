@@ -47,7 +47,7 @@ class QuizDetailSerializer(serializers.ModelSerializer):
     blanks = BlankSerializer(many=True, read_only=True, source='valid_blanks')
     without_pattern = BlankSerializer(many=True, read_only=True, source='without_pattern_blanks')
     invalid_blanks = InvalidBlankSerializer(many=True, read_only=True)
-    stats = QuizStatsSerializer(source='get_stats')
+    stats = QuizStatsSerializer(source='get_stats', read_only=True)
 
     class Meta:
         model = Quiz

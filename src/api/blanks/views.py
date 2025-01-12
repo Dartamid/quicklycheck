@@ -200,3 +200,71 @@ class BlankDetail(APIView):
         blank = self.get_object(pk)
         blank.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class InvalidBlankListView(APIView):
+    models = InvalidBlank
+    serializer = InvalidBlankSerializer
+    permission_classes = (IsAuthenticated,)
+
+    @extend_schema(
+        tags=['Blanks'],
+        summary="Получение списка несчитанных бланков",
+        description="Возвращает список несчитанных бланков",
+        request=InvalidBlankSerializer(),
+        responses={
+            200: OpenApiResponse(
+                description="Список несчитанных бланков"
+            ),
+            403: OpenApiResponse(description="У вас нет доступа к данному тесту"),
+            404: OpenApiResponse(description="Тест с данным ID не найден")
+        }
+    )
+    def get(self, request, quiz_pk):
+        quiz = get_object_or_404(Quiz, pk=quiz_pk)
+        blanks = InvalidBlank.objects.filter(quiz=quiz, quiz__teacher=request.user)
+        serialized = self.serializer(blanks, many=True)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+    
+class InvalidBlankDetail(APIView):
+    models = InvalidBlank
+    serializer = InvalidBlankSerializer
+    permission_classes = (IsAuthenticated,)
+
+    @extend_schema(
+        tags=['Blanks'],
+        summary="Получение деталей несчитанного бланка",
+        description="Возвращает все поля несчитанного бланка",
+        request=InvalidBlankSerializer(),
+        responses={
+            200: OpenApiResponse(
+                description="Несчитанный бланк"
+            ),
+            403: OpenApiResponse(description="У вас нет доступа к данному тесту"),
+            404: OpenApiResponse(description="Бланк с данным ID не найден")
+        }
+    )
+    def get(self, request, blank_pk):
+        blank = get_object_or_404(InvalidBlank, pk=blank_pk, quiz__teacher=request.user)
+        serialized = self.serializer(blank)
+        return Response(serialized.data, status=status.HTTP_200_OK)
+    
+    @extend_schema(
+        tags=['Blanks'],
+        summary="Удаление несчитанного бланка",
+        description="Удаляет несчитанный бланк из базы данных",
+        request=InvalidBlankSerializer(),
+        responses={
+            202: OpenApiResponse(
+                description="Бланк удален"
+            ),
+            403: OpenApiResponse(description="У вас нет доступа к данному тесту"),
+            404: OpenApiResponse(description="Бланк с данным ID не найден")
+        }
+    )
+    def delete(self, request, blank_pk):
+        blank = get_object_or_404(InvalidBlank, pk=blank_pk, quiz__teacher=request.user)
+        blank.delete()
+        return Response({
+            'detail': 'Бланк удален'
+        },status=status.HTTP_204_NO_CONTENT)
