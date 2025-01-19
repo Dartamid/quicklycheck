@@ -169,7 +169,7 @@ LOGIN_REDIRECT_URL = 'index'
 
 LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'UTC+5'
+TIME_ZONE = 'Asia/Yekaterinburg'
 
 USE_I18N = True
 

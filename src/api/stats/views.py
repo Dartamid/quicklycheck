@@ -7,6 +7,7 @@ from api.teachers.permissions import IsTeacher
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
+from datetime import timedelta
 
 
 period_choices = [
@@ -38,7 +39,7 @@ class GradeStatsByPeriodView(APIView):
         raw_data = {}
 
         for blank in blanks:
-            date = blank.created_at.strftime(period_choices[per])
+            date = (blank.created_at + timedelta(hours=5)).strftime(period_choices[per])
             if date in raw_data.keys():
                 raw_data[date].append(int(blank.score.percentage))
             else:
@@ -118,7 +119,7 @@ class StudentGraphsView(APIView):
         raw_data = {}
 
         for blank in blanks:
-            date = blank.created_at.strftime(period_choices[per])
+            date = (blank.created_at + timedelta(hours=5)).strftime(period_choices[per])
             if date in raw_data.keys():
                 raw_data[date].append(int(blank.score.percentage))
             else:
