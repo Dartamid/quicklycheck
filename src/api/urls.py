@@ -10,6 +10,7 @@ from django.urls import path, include
 
 
 urlpatterns = [
+    path('temp/', include('api.temp.urls')),
     path('', include('api.assessments.urls')),
     path('', include('api.students.urls')),
     path('', include('api.teachers.urls')),
