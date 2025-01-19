@@ -6,8 +6,41 @@ from api.stats.serializers import QuizStatsSerializer
 
 User = get_user_model()
 
+def json_assessments():
+    default = [
+        {
+            'name': '2',
+            'minPr': 0,
+            'maxPr': 40,
+            'color': '#ff0000',
+        },
+        {
+            'name': '3',
+            'minPr': 40,
+            'maxPr': 60,
+            'color': '#ff0000',
+        },
+        {
+            'name': '4',
+            'minPr': 60,
+            'maxPr': 80,
+            'color': '#ff0000',
+        },
+        {
+            'name': '5',
+            'minPr': 80,
+            'maxPr': 100,
+            'color': '#ff0000',
+        }
+    ]
+    return default
+
 
 class Quiz(models.Model):
+    assessments = models.JSONField(
+        'Градация оценок',
+        default=json_assessments
+    )
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
     name = models.CharField(max_length=254)
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='quizzes')

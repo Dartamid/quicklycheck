@@ -11,10 +11,10 @@ class TempQuizSerializer(serializers.ModelSerializer):
 class TempPatternSerializer(serializers.ModelSerializer):
     class Meta:
         model = TempPattern
-        fields = ['pk', 'test', 'num', 'pattern']
+        fields = ['pk', 'quiz', 'num', 'pattern']
 
 
 class TempBlankSerializer(serializers.ModelSerializer):
     class Meta:
         model = TempBlank
-        fields = ['pk', 'test', 'image', 'id_blank', 'var', 'answers']
+        fields = ['pk', 'quiz', 'image', 'id_blank', 'var', 'answers']

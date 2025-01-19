@@ -4,7 +4,7 @@ from api.quizzes.models import Quiz
 
 
 class Assessment(models.Model):
-    test = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='assessments')
+    test = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='assessments_old')
     min_pr = models.IntegerField(
         validators=[
             MinValueValidator(1),
