@@ -59,7 +59,7 @@ class PatternList(APIView):
         serialized = self.serializer(data=data)
         if serialized.is_valid():
             serialized.save()
-            blanks_with_this_pattern = quiz.without_pattern_blanks.filter(var=data['num'])
+            blanks_with_this_pattern = quiz.without_pattern_blanks().filter(var=data['num'])
             if blanks_with_this_pattern.count() > 0:
                 for blank in blanks_with_this_pattern:
                     check_blank(blank.score)

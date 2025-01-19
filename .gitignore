@@ -8,3 +8,4 @@
 **/__pycache__
 **/migrations/00**.py
 **/tests/
+**/test_images/
