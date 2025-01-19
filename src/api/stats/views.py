@@ -87,7 +87,7 @@ class QuizGraphsView(APIView):
                         raw_data[str(i)] = 1 if answer['isRight'] else 0
 
             for key, value in raw_data.items():
-                clear_data['questions'][key] = value / len(blanks) * 100
+                clear_data['questions'][key+1] = value / len(blanks) * 100
 
             most_hard = min(list(clear_data['questions'].items()), key=lambda x: x[1])
              
