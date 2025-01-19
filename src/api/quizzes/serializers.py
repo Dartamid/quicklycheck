@@ -6,7 +6,7 @@ from .models import Quiz
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ['pk', 'assessments','name', 'teacher', 'grade']
+        fields = ['pk', 'assessments', 'name', 'teacher', 'grade']
 
 
 class QuizShortSerializer(serializers.ModelSerializer):

@@ -149,3 +149,36 @@ class QuizDetail(APIView):
         test = self.get_object(test_pk)
         test.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ChangeAssessments(APIView):
+    model = Quiz
+    model = QuizDetailSerializer
+
+    @extend_schema(
+        tags=['Assessments'],
+        summary="Изменение оценивания для теста",
+        description="Изменяет градацию оценки для теста",
+        responses={
+            200: OpenApiResponse(
+                description="Оценивание успешно изменено",
+            ),
+            403: OpenApiResponse(
+                description="У вас нет доступа к данному тесту",
+            ),
+            404: OpenApiResponse(
+                description="Тест с данным ID не найден",
+            )
+        }
+    )
+    def post(self, request, quiz_pk):
+        try:
+            assessments = request.data['assessments']
+        except:
+            return Response({
+                "detail": 'Новое оценивание не было предоставлено',
+            }, status=status.HTTP_400_BAD_REQUEST)
+        quiz = get_object_or_404(Quiz, teacher=request.user, pk=quiz_pk)
+        quiz.assessments = assessments
+        quiz.save(update_fields=['assessments'])
+        return Response(QuizDetailSerializer(quiz).data, status=status.HTTP_200_OK)
