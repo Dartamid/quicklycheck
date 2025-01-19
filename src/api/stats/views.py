@@ -81,7 +81,7 @@ class QuizGraphsView(APIView):
         if len(blanks) > 0:
             for blank in blanks:
                 for i, answer in enumerate(blank.score.checked_answers):
-                    if str(i) in raw_data.keys():
+                    if str(i+1) in raw_data.keys():
                         raw_data[str(i+1)] += 1 if answer['isRight'] else 0
                     else:
                         raw_data[str(i+1)] = 1 if answer['isRight'] else 0
