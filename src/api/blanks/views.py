@@ -33,6 +33,7 @@ def check_blank(score):
     score.is_checked=True
     score.checked_answers=checked_answers
     score.save()
+    score.blank.set_assessment()
 
 
 class BlankList(APIView):

@@ -64,6 +64,10 @@ class Quiz(models.Model):
     def without_pattern_blanks(self):
         return self.blanks.filter(score__is_checked=False)
     
+    def update_assessments(self):
+        for blank in self.valid_blanks:
+            blank.set_assessment()
+    
     def get_stats(self):
         serializer = QuizStatsSerializer()
         blanks = self.blanks.all().order_by('score__percentage')

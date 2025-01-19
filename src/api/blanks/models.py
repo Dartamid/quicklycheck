@@ -39,6 +39,11 @@ class Blank(models.Model):
     id_blank = models.CharField(
         max_length=2, verbose_name='ID ученика'
     )
+    assessment = models.CharField(
+        verbose_name='Оценка работы',
+        null=True, blank=True,
+        max_length=20
+    )
     var = models.IntegerField(
         verbose_name='Вариант',
         validators=[
@@ -59,6 +64,14 @@ class Blank(models.Model):
         verbose_name='Дата создания',
         auto_now_add=True
     )
+
+    def set_assessment(self):
+        if self.score.is_checked:
+            assessments = self.quiz.assessments
+            per = self.score.percentage
+            for assessment in assessments:
+                if assessment['min_pr'] < per <= assessment['max_pr']:
+                    self.assessment = assessment['name']
 
 
 class InvalidBlank(models.Model):

@@ -52,13 +52,17 @@ class PatternList(APIView):
         }
     )
     def post(self, request, test_pk):
-        test = get_object_or_404(Quiz, pk=test_pk, teacher=request.user)
+        quiz = get_object_or_404(Quiz, pk=test_pk, teacher=request.user)
         data = request.data.copy()
-        data['quiz'] = test.pk
-        data['teacher'] = test.teacher.pk
+        data['quiz'] = quiz.pk
+        data['teacher'] = quiz.teacher.pk
         serialized = self.serializer(data=data)
         if serialized.is_valid():
             serialized.save()
+            blanks_with_this_pattern = quiz.without_pattern_blanks.filter(var=data['num'])
+            if blanks_with_this_pattern.count() > 0:
+                for blank in blanks_with_this_pattern:
+                    check_blank(blank.score)
             return Response(serialized.data, status=status.HTTP_201_CREATED)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
