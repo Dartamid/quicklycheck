@@ -20,7 +20,7 @@ class BlankSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blank
-        fields = ['pk', 'quiz', 'testName', 'author_info', 'image', 'id_blank', 'var', 'answers', 'blank_score', 'created_at']
+        fields = ['pk', 'quiz', 'assessment' ,'testName', 'author_info', 'image', 'id_blank', 'var', 'answers', 'blank_score', 'created_at']
         read_only_fields = ['image', 'author_info']
 
 
