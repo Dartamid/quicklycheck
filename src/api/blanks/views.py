@@ -21,7 +21,7 @@ def check_blank(score):
     right = 0
     for key in range(len(pattern)):
         try:
-            answer = score.blank.answers[key + 1]
+            answer = score.blank.answers[key]
         except IndexError:
             answer = ''
         is_right = True if pattern[key] == answer else False
