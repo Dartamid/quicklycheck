@@ -173,9 +173,10 @@ class Blank:
             x = round((first_check[0] * self.hor_ratio) + (inter * self.ver_ratio) * checkbox)
             pixel = image[y, x]
             pixels.append(pixel)
-        avg = sum(pixels,) / len(pixels)
+        avg = sum(pixels) / len(pixels)
+        # print(pixels)
         for i, pixel in enumerate(pixels):
-            if pixel / avg < 0.8 and pixel < 70 or pixel < 30 or pixel / avg < 0.5:
+            if pixel / avg < 0.8 and pixel < 50 or pixel < 30 or pixel / avg < 0.4:
                 result += str(i+addition)
         return result
 
@@ -243,7 +244,7 @@ def checker(file):
 
 
 if __name__ == "__main__":
-    blank = checker('images/test.jpg')
+    blank = checker('C:/Users/Dartamid/Code/quicklycheck/src/checker/test_images/test.jpg')
 
     print(f'ID: {blank.id}')
     print(f'Variant: {blank.var}')
