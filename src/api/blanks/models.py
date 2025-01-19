@@ -72,6 +72,7 @@ class Blank(models.Model):
             for assessment in assessments:
                 if assessment['minPr'] < per <= assessment['maxPr']:
                     self.assessment = assessment['name']
+                    self.save()
 
 
 class InvalidBlank(models.Model):
