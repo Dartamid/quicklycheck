@@ -20,7 +20,11 @@ def check_blank(score):
     checked_answers = [x for x in range(len(pattern))]
     right = 0
     for key in range(len(pattern)):
-        is_right = True if pattern[key] == score.blank.answers[key] else False
+        try:
+            answer = score.blank.answers[key + 1]
+        except IndexError:
+            answer = ''
+        is_right = True if pattern[key] == answer else False
         right += 1 if is_right else 0
         checked_answers[key] = {
         'actual': score.blank.answers[key],
