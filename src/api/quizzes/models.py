@@ -10,26 +10,26 @@ def json_assessments():
     default = [
         {
             'name': '2',
-            'minPr': 0,
-            'maxPr': 40,
+            'min_pr': 0,
+            'max_pr': 40,
             'color': '#ff0000',
         },
         {
             'name': '3',
-            'minPr': 40,
-            'maxPr': 60,
+            'min_pr': 40,
+            'max_pr': 60,
             'color': '#ff0000',
         },
         {
             'name': '4',
-            'minPr': 60,
-            'maxPr': 80,
+            'min_pr': 60,
+            'max_pr': 80,
             'color': '#ff0000',
         },
         {
             'name': '5',
-            'minPr': 80,
-            'maxPr': 100,
+            'min_pr': 80,
+            'max_pr': 100,
             'color': '#ff0000',
         }
     ]

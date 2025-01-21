@@ -217,9 +217,9 @@ class TempBlankList(APIView):
             score = TempScore.objects.create(blank=blank)
             if var in [item.num for item in quiz.patterns.all()]:
                 check_blank(score)
-                serialized_list.append(self.serializer_class(blank).data)
+                serialized_list.append(self.serializer(blank).data)
             else:
-                without_pattern.append(self.serializer_class(blank).data)
+                without_pattern.append(self.serializer(blank).data)
         response = {
             "blanks": serialized_list,
             "withoutPattern": without_pattern,
