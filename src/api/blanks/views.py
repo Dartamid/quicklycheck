@@ -17,7 +17,7 @@ from api.blanks.models import Blank, Score, InvalidBlank, json_checked_answers
 
 def set_author(blank):
     grade = blank.quiz.grade
-    id_blank = int(blank.id_blank) + 1
+    id_blank = int(blank.id_blank)
     if  id_blank <= grade.students.count() and id_blank > 0:
         blank.author = grade.students.all().order_by('name')[id_blank-1]
         blank.save()
