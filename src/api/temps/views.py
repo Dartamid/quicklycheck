@@ -218,7 +218,6 @@ class TempBlankList(APIView):
                 answers=list(results.answers.values()),
                 image=file
             )
-            serialized_list.append(self.serializer(blank).data)
             score = TempScore.objects.create(blank=blank)
             if var in [item.num for item in quiz.patterns.all()]:
                 check_blank(score)
