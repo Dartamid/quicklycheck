@@ -11,7 +11,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('temp/', include('api.temps.urls')),
-    path('', include('api.assessments.urls')),
+    # path('', include('api.assessments.urls')),
     path('', include('api.students.urls')),
     path('', include('api.teachers.urls')),
     path('', include('api.blanks.urls')),

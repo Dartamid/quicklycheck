@@ -17,7 +17,8 @@ def json_checked_answers():
 
 class TempQuiz(models.Model):
     created_at = models.DateTimeField(
-        auto_created=True,
+        verbose_name='Дата создания',
+        auto_now_add=True
     )
 
 
