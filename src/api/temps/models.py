@@ -90,6 +90,11 @@ class TempBlank(models.Model):
             MaxValueValidator(10),
         ]
     )
+    assessment = models.CharField(
+        verbose_name='Оценка работы',
+        null=True, blank=True,
+        max_length=20
+    )
     image = models.ImageField(
         'Фотография бланка',
         upload_to='blanks/',

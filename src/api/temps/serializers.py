@@ -26,4 +26,4 @@ class TempBlankSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TempBlank
-        fields = ['pk', 'quiz', 'image', 'assessments', 'id_blank', 'var', 'answers', 'blank_score']
+        fields = ['pk', 'quiz', 'image', 'assessment', 'id_blank', 'var', 'answers', 'blank_score']
