@@ -53,7 +53,7 @@ class TempPatternList(APIView):
     )
     def get(self, request, test_pk):
         test = get_object_or_404(TempQuiz, pk=test_pk)
-        patterns = self.model.objects.filter(test=test)
+        patterns = self.model.objects.filter(quiz=test)
         serialized = self.serializer(patterns, many=True)
         return Response(serialized.data, status=status.HTTP_200_OK)
 
