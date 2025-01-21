@@ -181,4 +181,8 @@ class ChangeAssessments(APIView):
         quiz = get_object_or_404(Quiz, teacher=request.user, pk=quiz_pk)
         quiz.assessments = assessments
         quiz.save(update_fields=['assessments'])
+        blanks = quiz.valid_blanks()
+        if blanks.count() > 0:
+            for blank in blanks:
+                blank.set_assessment()
         return Response(QuizDetailSerializer(quiz).data, status=status.HTTP_200_OK)
