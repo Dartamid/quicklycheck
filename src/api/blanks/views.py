@@ -19,7 +19,7 @@ def set_author(blank):
     quiz = blank.quiz
     id_blank = int(blank.id_blank) + 1
     if  id_blank <= quiz.students.count():
-        blank.author = quiz.students.all().order_by('name')[id_blank]
+        blank.author = quiz.students.all().order_by('name')[id_blank-1]
         blank.save()
     else:
         blank.author = None
@@ -129,7 +129,7 @@ class BlankList(APIView):
             if len(quiz.grade.students.all()) >= int(results.id) - 1:
                 author = quiz.grade.students.all()[int(results.id) - 1]
             else:
-                author = quiz.grade.students.all()[1]
+                author = None
             if 0 < int(results.var) <= 10:
                 var = int(results.var)
             blank = Blank.objects.create(
