@@ -169,7 +169,12 @@ class TempBlankList(APIView):
     def get(self, request, test_pk):
         blanks = get_object_or_404(self.parent_model, pk=test_pk).blanks
         serialized = self.serializer(blanks, many=True)
-        return Response(serialized.data)
+        response = {
+            "blanks": serialized.data,
+            "withoutPattern": [],
+            "invalidBlanks": []
+        }
+        return Response(response)
 
     @extend_schema(
         tags=['Temps'],
