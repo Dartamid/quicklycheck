@@ -12,11 +12,31 @@ from checker.utils import checker
 from api.quizzes.models import Quiz
 from api.teachers.permissions import IsTeacher
 from api.blanks.serializers import BlankSerializer, InvalidBlankSerializer
-from api.blanks.models import Blank, Score, InvalidBlank
+from api.blanks.models import Blank, Score, InvalidBlank, json_checked_answers
+
+
+def set_author(blank):
+    quiz = blank.quiz
+    id_blank = int(blank.id_blank) + 1
+    if  id_blank <= quiz.students.count():
+        blank.author = quiz.students.all().order_by('name')[id_blank]
+        blank.save()
+    else:
+        blank.author = None
+        blank.save()
 
 
 def check_blank(score):
-    pattern = score.blank.quiz.patterns.filter(num=score.blank.var)[0].pattern.split(',')
+    try:
+        pattern = score.blank.quiz.patterns.filter(num=score.blank.var)[0].pattern.split(',')
+    except IndexError:
+        score.is_checked = False
+        score.percentage = right/len(pattern) * 100
+        score.total=0
+        score.right=0
+        score.checked_answers=json_checked_answers()
+        score.save()
+        return
     checked_answers = [x for x in range(len(pattern))]
     right = 0
     for key in range(len(pattern)):

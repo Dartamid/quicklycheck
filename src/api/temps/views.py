@@ -200,7 +200,7 @@ class TempBlankList(APIView):
         for image in images:
             results = checker(image.temporary_file_path())
             if results == 'invalid':
-                invalid_blanks.append(image.file_name)
+                invalid_blanks.append(image.name)
                 continue
             new_image = Image.fromarray(results.img)
             bytes_io = BytesIO()
