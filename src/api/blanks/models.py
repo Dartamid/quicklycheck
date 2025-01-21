@@ -84,6 +84,10 @@ class InvalidBlank(models.Model):
         'Фотография бланка',
         upload_to='invalid_blanks/',
     )
+    image_name = models.CharField(
+        'Название файла',
+        max_length=255,
+    )
     created_at = models.DateTimeField(
         verbose_name='Дата создания',
         auto_now_add=True

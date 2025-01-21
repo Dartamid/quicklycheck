@@ -31,7 +31,7 @@ def check_blank(score):
         pattern = score.blank.quiz.patterns.filter(num=score.blank.var)[0].pattern.split(',')
     except IndexError:
         score.is_checked = False
-        score.percentage = right/len(pattern) * 100
+        score.percentage = 0
         score.total=0
         score.right=0
         score.checked_answers=json_checked_answers()
@@ -116,6 +116,7 @@ class BlankList(APIView):
                 blank = InvalidBlank.objects.create(
                     quiz=quiz,
                     image=image,
+                    image_name = image.name
                 )
                 invalid_blanks.append(InvalidBlankSerializer(blank).data)
                 continue
