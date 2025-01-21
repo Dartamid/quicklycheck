@@ -30,5 +30,5 @@ class InvalidBlankSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InvalidBlank
-        fields = ['pk', 'quiz', 'image', 'image_name' 'grade' ,'created_at']
+        fields = ['pk', 'quiz', 'image', 'image_name', 'grade' ,'created_at']
         read_only_fields = ['image', 'image_name']

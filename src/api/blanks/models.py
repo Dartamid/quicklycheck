@@ -87,6 +87,7 @@ class InvalidBlank(models.Model):
     image_name = models.CharField(
         'Название файла',
         max_length=255,
+        default='filename'
     )
     created_at = models.DateTimeField(
         verbose_name='Дата создания',
