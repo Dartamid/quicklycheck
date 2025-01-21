@@ -205,6 +205,7 @@ class BlankDetail(APIView):
         if serialized.is_valid():
             serialized.save()
             check_blank(blank.score)
+            set_author(blank)
             return Response(serialized.data)
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
