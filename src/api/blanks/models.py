@@ -70,7 +70,7 @@ class Blank(models.Model):
             assessments = self.quiz.assessments
             per = self.score.percentage
             for assessment in assessments:
-                if assessment['minPr'] < per <= assessment['maxPr']:
+                if assessment['min_pr'] <= per <= assessment['max_pr'] or per == assessment['min_pr'] == 0:
                     self.assessment = assessment['name']
                     self.save()
 
