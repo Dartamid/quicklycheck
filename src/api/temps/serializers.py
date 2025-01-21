@@ -23,7 +23,7 @@ class TempPatternSerializer(serializers.ModelSerializer):
 
 class TempBlankSerializer(serializers.ModelSerializer):
     blank_score = TempScoreSerializer(source='score', read_only=True)
-    
+
     class Meta:
         model = TempBlank
-        fields = ['pk', 'quiz', 'image', 'id_blank', 'var', 'answers', 'blank_score']
+        fields = ['pk', 'quiz', 'image', 'assessments', 'id_blank', 'var', 'answers', 'blank_score']

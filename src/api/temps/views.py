@@ -167,11 +167,12 @@ class TempBlankList(APIView):
         }
     )
     def get(self, request, test_pk):
-        blanks = get_object_or_404(self.parent_model, pk=test_pk).blanks
-        serialized = self.serializer(blanks, many=True)
+        quiz = get_object_or_404(self.parent_model, pk=test_pk)
+        blanks = self.serializer(quiz.valid_blanks(), many=True)
+        without_pattern = self.serializer(quiz.without_pattern_blanks(), many=True)
         response = {
-            "blanks": serialized.data,
-            "withoutPattern": [],
+            "blanks": blanks.data,
+            "withoutPattern": without_pattern.data,
             "invalidBlanks": []
         }
         return Response(response)

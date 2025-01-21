@@ -54,6 +54,12 @@ class TempQuiz(models.Model):
         auto_now_add=True
     )
 
+    def valid_blanks(self):
+        return self.blanks.filter(score__is_checked=True)
+    
+    def without_pattern_blanks(self):
+        return self.blanks.filter(score__is_checked=False)
+
 
 class TempPattern(models.Model):
     quiz = models.ForeignKey(TempQuiz, on_delete=models.CASCADE, related_name='patterns')
