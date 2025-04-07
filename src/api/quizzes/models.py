@@ -43,7 +43,10 @@ class Quiz(models.Model):
     )
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
     name = models.CharField(max_length=254)
-    grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='quizzes')
+    grade = models.ForeignKey(
+        Grade, on_delete=models.CASCADE, related_name='quizzes',
+        blank=True, null=True
+    )
 
     class Meta:
         verbose_name = 'Quiz'

@@ -7,8 +7,9 @@ from api.grades.models import Grade
 from api.assessments.models import Assessment
 from api.blanks.models import Blank, Score
 from api.students.models import Student
-from api.patterns.models import Pattern
 from api.quizzes.models import Quiz
+from api.patterns.models import Pattern, Question, AnswerChoice
+from api.workshop.models import SharedQuiz
 
 User = get_user_model()
 
@@ -26,7 +27,23 @@ class ScoreAdmin(admin.StackedInline):
     model = Score
     can_delete = False
     verbose_name_plural = 'Score'
-    
+
+
+class AnswerChoiceAdmin(admin.StackedInline):
+    model = AnswerChoice
+    can_delete = True
+    verbose_name = 'Вариант ответа'
+    verbose_name_plural = 'Варианты ответа'
+
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    model = Question
+    list_display = [field.name for field in Question._meta.fields]
+    inlines = [AnswerChoiceAdmin,]
+    verbose_name = 'Вопрос'
+    verbose_name_plural = 'Вопросы'
+
 
 @admin.register(Blank)
 class BlanksAdmin(admin.ModelAdmin):
@@ -55,6 +72,10 @@ class QuizzesAdmin(admin.ModelAdmin):
     model = Quiz
     list_display = [field.name for field in Quiz._meta.fields]
 
+@admin.register(SharedQuiz)
+class SharedQuizAdmin(admin.ModelAdmin):
+    model = SharedQuiz
+    list_display = [field.name for field in SharedQuiz._meta.fields]
 
 @admin.register(Student)
 class StudentsAdmin(admin.ModelAdmin):

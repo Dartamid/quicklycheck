@@ -20,6 +20,7 @@ urlpatterns = [
     path('', include('api.quizzes.urls')),
     path('', include('api.stats.urls')),
     path('', include('api.tokens.urls')),
+    path('', include('api.workshop.urls')),
 ]
 
 

@@ -16,7 +16,8 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'drf_spectacular'
+    'drf_spectacular',
+    'django_extensions'
 ]
 
 LOCAL_APPS = [
@@ -31,6 +32,7 @@ LOCAL_APPS = [
     'api.patterns.apps.PatternsConfig',
     'api.quizzes.apps.QuizzesConfig',
     'api.combined.apps.CombinedConfig',
+    'api.workshop.apps.WorkshopConfig',
     'api.apps.ApiConfig',
 ]
 

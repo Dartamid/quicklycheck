@@ -9,3 +9,4 @@
 **/migrations/00**.py
 **/tests/
 **/test_images/
+**/ocr
